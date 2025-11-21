@@ -1,0 +1,1726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notion CMS Config Generator</title>
+    <script src="https://unpkg.com/json5@2/dist/index.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Neo-Brutalist Theme Variables */
+        :root {
+            --bg-light: 246, 247, 249;
+            --text-light: 26, 28, 30;
+            --accent-light: 180, 95, 55;
+            --accent2-light: 150, 60, 95;
+            --border-width: 3px;
+            --shadow-offset: 4px;
+        }
+
+        body {
+            background-color: rgb(var(--bg-light));
+            color: rgb(var(--text-light));
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Neo-Brutalist Components */
+        .nb-box {
+            background: white;
+            border: var(--border-width) solid black;
+            box-shadow: var(--shadow-offset) var(--shadow-offset) 0px black;
+            transition: all 0.1s ease-in-out;
+        }
+        
+        .nb-box:hover {
+            transform: translate(-1px, -1px);
+            box-shadow: calc(var(--shadow-offset) + 2px) calc(var(--shadow-offset) + 2px) 0px black;
+        }
+
+        .nb-input, .nb-select {
+            border: var(--border-width) solid black;
+            padding: 0.5rem;
+            width: 100%;
+            font-family: 'JetBrains Mono', monospace;
+            outline: none;
+            background: #fff;
+        }
+
+        .nb-input:focus, .nb-select:focus {
+            background-color: #f0f0f0;
+            box-shadow: 2px 2px 0px black;
+        }
+
+        .nb-button {
+            background-color: rgb(var(--accent-light));
+            color: white;
+            border: var(--border-width) solid black;
+            padding: 0.5rem 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: var(--shadow-offset) var(--shadow-offset) 0px black;
+            text-transform: uppercase;
+            font-family: 'Space Grotesk', sans-serif;
+            display: inline-block;
+        }
+
+        .nb-button:active {
+            transform: translate(var(--shadow-offset), var(--shadow-offset));
+            box-shadow: 0px 0px 0px black;
+        }
+        
+        .nb-button.secondary {
+            background-color: white;
+            color: black;
+        }
+
+        .nb-button.delete {
+            background-color: #ff4d4d;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .nb-label {
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            display: block;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+
+        .nb-section-header {
+            background: black;
+            color: white;
+            padding: 1rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nb-section-content {
+            border-top: var(--border-width) solid black;
+            padding: 1.5rem;
+            display: none;
+        }
+        
+        .nb-section-content.active {
+            display: block;
+        }
+
+        .nb-checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem;
+            border: 2px solid transparent;
+        }
+        .nb-checkbox-wrapper:hover {
+            background: #f0f0f0;
+            border: 2px solid black;
+        }
+        
+        .subsection-title {
+            font-weight: 800;
+            font-size: 1.1rem;
+            border-bottom: 2px solid black;
+            margin-bottom: 1rem;
+            padding-bottom: 0.25rem;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 12px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-left: 3px solid black; }
+        ::-webkit-scrollbar-thumb { background: black; }
+        ::-webkit-scrollbar-thumb:hover { background: rgb(var(--accent-light)); }
+    </style>
+</head>
+<body class="p-4 md:p-8 min-h-screen flex flex-col lg:flex-row gap-8">
+
+    <!-- Left Panel: Form -->
+    <div class="flex-1 flex flex-col gap-6 max-w-4xl mx-auto w-full">
+        
+        <header class="nb-box p-6 bg-[#ffde59] mb-4">
+            <h1 class="text-3xl md:text-5xl font-black uppercase mb-2">Webtrotion Config</h1>
+            <p class="font-bold mono text-sm md:text-base">Complete configuration generator.</p>
+        </header>
+
+        <form id="configForm" class="flex flex-col gap-4">
+            
+            <!-- 1. Notion -->
+            <div class="nb-box">
+                <div class="nb-section-header" onclick="toggleSection('sec-notion')">
+                    <span class="font-bold">1. Notion Configuration</span>
+                    <span>▼</span>
+                </div>
+                <div id="sec-notion" class="nb-section-content active">
+                    <div class="grid gap-4">
+                        <div>
+                            <label class="nb-label">Data Source ID (Preferred)</label>
+                            <input type="text" data-path="notion.data-source-id" class="nb-input" placeholder="f6e3813f-..." oninput="updateConfig(this)">
+                        </div>
+                        <div>
+                            <label class="nb-label">Database ID (Fallback)</label>
+                            <input type="text" data-path="notion.database-id" class="nb-input" placeholder="Classic DB ID" oninput="updateConfig(this)">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Site Info -->
+            <div class="nb-box">
+                <div class="nb-section-header" onclick="toggleSection('sec-site')">
+                    <span class="font-bold">2. Site Information</span>
+                    <span>▼</span>
+                </div>
+                <div id="sec-site" class="nb-section-content">
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="md:col-span-2"><label class="nb-label">Author</label><input type="text" data-path="site-info.author" class="nb-input" oninput="updateConfig(this)"></div>
+                        <div><label class="nb-label">Domain</label><input type="text" data-path="site-info.custom-domain" class="nb-input" placeholder="example.com" oninput="updateConfig(this)"></div>
+                        <div><label class="nb-label">Base Path</label><input type="text" data-path="site-info.base-path" class="nb-input" placeholder="/blog" oninput="updateConfig(this)"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Collections -->
+            <div class="nb-box">
+                <div class="nb-section-header" onclick="toggleSection('sec-collections')">
+                    <span class="font-bold">3. Collections & Listings</span>
+                    <span>▼</span>
+                </div>
+                <div id="sec-collections" class="nb-section-content">
+                    <div class="grid gap-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div><label class="nb-label">Home Slug</label><input type="text" data-path="collections-and-listings.home-page-slug" class="nb-input" value="home" oninput="updateConfig(this)"></div>
+                            <div><label class="nb-label">Menu Collection</label><input type="text" data-path="collections-and-listings.menu-pages-collection" class="nb-input" value="main" oninput="updateConfig(this)"></div>
+                        </div>
+                        <div class="nb-checkbox-wrapper">
+                            <input type="checkbox" data-path="collections-and-listings.recent-posts-on-home-page" class="w-5 h-5" onchange="updateConfig(this)" checked>
+                            <span class="font-bold">Show Recent Posts on Home</span>
+                        </div>
+                        <div class="nb-checkbox-wrapper">
+                            <input type="checkbox" data-path="collections-and-listings.hide-underscore-slugs-in-lists" class="w-5 h-5" onchange="updateConfig(this)" checked>
+                            <span class="font-bold">Hide Underscore Slugs</span>
+                        </div>
+                        <div><label class="nb-label">Posts Per Page</label><input type="number" data-path="collections-and-listings.number-of-posts-per-page" class="nb-input" value="10" oninput="updateConfig(this)"></div>
+                        <div><label class="nb-label">Full Preview (Comma Sep)</label><input type="text" class="nb-input" value="Stream" oninput="updateArray(this, 'collections-and-listings.full-preview-collections')"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Theme -->
+            <div class="nb-box">
+                <div class="nb-section-header" onclick="toggleSection('sec-theme')">
+                    <span class="font-bold">4. Theme & Colors</span>
+                    <span>▼</span>
+                </div>
+                <div id="sec-theme" class="nb-section-content">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6" id="colorContainer"></div>
+                    
+                    <!-- Typography Preview -->
+                    <div class="mb-6 border-2 border-black p-2 bg-gray-50">
+                        <button type="button" class="nb-button w-full text-sm mb-2" onclick="toggleThemePreview()">👁 Toggle Typography Preview</button>
+                        <div id="theme-preview-container" class="hidden border-2 border-black transition-all duration-300">
+                            <div class="flex justify-between items-center p-2 border-b-2 border-black bg-white text-black">
+                                <span class="text-xs font-bold uppercase">Preview</span>
+                                <button type="button" class="text-xs font-bold uppercase border border-black px-2 py-1 hover:bg-gray-200 transition-colors" onclick="togglePreviewMode(this)">Switch to Dark Mode</button>
+                            </div>
+                            <div id="preview-content" class="p-6 transition-colors duration-300">
+                                <h1 id="preview-h1" class="text-4xl font-bold mb-4 leading-tight">Heading Level 1</h1>
+                                <p class="mb-4 text-lg leading-relaxed">Sample text with <strong>bold</strong> and <em>italic</em> styles. <a href="#" id="preview-link" class="underline">Link example</a>.</p>
+                                <blockquote id="preview-quote" class="border-l-4 pl-4 py-1 mb-4 italic text-lg">"Design is how it works."</blockquote>
+                                <pre id="preview-code" class="p-3 rounded text-sm border border-current opacity-90">console.log("Code block");</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border-t-2 border-black pt-4">
+                        <label class="nb-label">Google Fonts</label>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div><span id="label-sans" class="text-sm font-bold block mb-2">Sans Font</span><input type="text" data-path="theme.fontfamily-google-fonts.sans-font-name" class="nb-input" value="Roboto" oninput="updateFontPreview(this, 'sans')" onblur="handleFontBlur(this, 'sans')"></div>
+                            <div><span id="label-mono" class="text-sm font-bold block mb-2">Mono Font</span><input type="text" data-path="theme.fontfamily-google-fonts.mono-font-name" class="nb-input" value="Roboto Mono" oninput="updateFontPreview(this, 'mono')" onblur="handleFontBlur(this, 'mono')"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. Socials -->
+            <div class="nb-box">
+                <div class="nb-section-header" onclick="toggleSection('sec-socials')">
+                    <span class="font-bold">5. Social Links</span>
+                    <span>▼</span>
+                </div>
+                <div id="sec-socials" class="nb-section-content">
+                    <div class="grid gap-3" id="socialsContainer"></div>
+                </div>
+            </div>
+
+            <!-- 6. Tracking -->
+            <div class="nb-box">
+                <div class="nb-section-header" onclick="toggleSection('sec-tracking')">
+                    <span class="font-bold">6. Analytics</span>
+                    <span>▼</span>
+                </div>
+                <div id="sec-tracking" class="nb-section-content">
+                    <div class="space-y-4">
+                        <div class="p-3 border-2 border-black">
+                            <div class="nb-checkbox-wrapper mb-2">
+                                <input type="checkbox" data-path="tracking.google-analytics.use-ga" class="w-5 h-5" onchange="updateConfig(this)" checked>
+                                <span class="font-bold">Google Analytics</span>
+                            </div>
+                            <input type="text" data-path="tracking.google-analytics.public-ga-tracking-id" class="nb-input" placeholder="G-XXXXXXXXXX" oninput="updateConfig(this)">
+                        </div>
+                        <div class="p-3 border-2 border-black">
+                            <div class="nb-checkbox-wrapper mb-2">
+                                <input type="checkbox" data-path="tracking.umami.use-umami" class="w-5 h-5" onchange="updateConfig(this)">
+                                <span class="font-bold">Umami</span>
+                            </div>
+                            <input type="text" data-path="tracking.umami.data-website-id" class="nb-input mb-2" placeholder="Website ID" oninput="updateConfig(this)">
+                            <div class="nb-checkbox-wrapper">
+                                <input type="checkbox" data-path="tracking.umami.self-hosted" class="w-4 h-4" onchange="updateConfig(this)"> <span>Self Hosted</span>
+                            </div>
+                            <input type="text" data-path="tracking.umami.self-hosted-umami-url" class="nb-input mt-2" placeholder="Script URL" oninput="updateConfig(this)">
+                        </div>
+                         <div><label class="nb-label">Google Search Console Tag</label><input type="text" data-path="tracking.google-search-console-html-tag" class="nb-input" placeholder="content value only" oninput="updateConfig(this)"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 7. OG Setup -->
+            <div class="nb-box">
+                <div class="nb-section-header" onclick="toggleSection('sec-og')">
+                    <span class="font-bold">7. Open Graph (OG) Images</span>
+                    <span>▼</span>
+                </div>
+                <div id="sec-og" class="nb-section-content">
+                     <div class="grid md:grid-cols-2 gap-4 mb-6">
+                         <div>
+                             <label class="nb-label">Columns</label>
+                             <select data-path="og-setup.columns" class="nb-select" onchange="updateConfig(this); renderOGPreview();">
+                                 <option value="1">1 Column (Background Img)</option>
+                                 <option value="2">2 Columns (Side-by-Side)</option>
+                             </select>
+                         </div>
+                         <div class="flex items-end">
+                             <div class="nb-checkbox-wrapper w-full">
+                                <input type="checkbox" data-path="og-setup.excerpt" class="w-5 h-5" onchange="updateConfig(this); renderOGPreview();">
+                                <span class="font-bold">Include Excerpt</span>
+                             </div>
+                         </div>
+                         <div>
+                            <span id="label-og-title" class="text-sm font-bold block mb-2">Title Font</span>
+                            <div class="flex gap-2">
+                                <input type="text" data-path="og-setup.title-font-name" class="nb-input w-2/3" value="Kreon" oninput="updateFontPreview(this, 'og-title')" onblur="handleFontBlur(this, 'og-title')">
+                                <input type="number" data-path="og-setup.title-font-weight" class="nb-input w-1/3" value="500" placeholder="Wgt" oninput="updateConfig(this)">
+                            </div>
+                         </div>
+                         <div>
+                            <span id="label-og-footnote" class="text-sm font-bold block mb-2">Footnote Font</span>
+                             <div class="flex gap-2">
+                                <input type="text" data-path="og-setup.footnote-font-name" class="nb-input w-2/3" value="JetBrains Mono" oninput="updateFontPreview(this, 'og-footnote')" onblur="handleFontBlur(this, 'og-footnote')">
+                                <input type="number" data-path="og-setup.footnote-font-weight" class="nb-input w-1/3" value="700" placeholder="Wgt" oninput="updateConfig(this)">
+                             </div>
+                         </div>
+                     </div>
+
+                     <!-- OG Preview Area -->
+                     <div class="border-2 border-black bg-gray-100 p-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="font-bold uppercase text-sm">Open Graph Preview (1200x630)</h4>
+                            <div class="flex gap-2">
+                                <div class="nb-checkbox-wrapper py-0 bg-white border border-black h-8">
+                                    <input type="checkbox" id="og-simulate-image" class="w-4 h-4" onchange="renderOGPreview()" checked>
+                                    <span class="text-xs font-bold">Simulate Image</span>
+                                </div>
+                                <button type="button" class="nb-button text-xs py-1" onclick="randomizeOGContent()">🎲 Randomize</button>
+                            </div>
+                        </div>
+                        <div class="w-full overflow-hidden border border-gray-300 shadow-lg bg-white relative" style="aspect-ratio: 1200/630;">
+                            <div id="og-canvas" class="w-full h-full relative"></div>
+                        </div>
+                     </div>
+                </div>
+            </div>
+
+            <!-- 8. Comments -->
+            <div class="nb-box">
+                <div class="nb-section-header" onclick="toggleSection('sec-comments')">
+                    <span class="font-bold">8. Comments</span>
+                    <span>▼</span>
+                </div>
+                <div id="sec-comments" class="nb-section-content">
+                    <h3 class="subsection-title">Giscus</h3>
+                    <div class="grid gap-2 mb-6">
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="text" data-path="comments.giscus.data-repo" class="nb-input" placeholder="user/repo" oninput="updateConfig(this)">
+                            <input type="text" data-path="comments.giscus.data-repo-id" class="nb-input" placeholder="Repo ID" oninput="updateConfig(this)">
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="text" data-path="comments.giscus.data-category" class="nb-input" placeholder="Category" oninput="updateConfig(this)">
+                            <input type="text" data-path="comments.giscus.data-category-id" class="nb-input" placeholder="Category ID" oninput="updateConfig(this)">
+                        </div>
+                         <div class="grid grid-cols-2 gap-2">
+                            <input type="text" data-path="comments.giscus.data-mapping" class="nb-input" value="pathname" placeholder="Mapping (e.g. pathname)" oninput="updateConfig(this)">
+                            <input type="text" data-path="comments.giscus.data-input-position" class="nb-input" value="top" placeholder="Position (top/bottom)" oninput="updateConfig(this)">
+                        </div>
+                         <div class="nb-checkbox-wrapper">
+                            <input type="checkbox" data-path="comments.giscus.data-reactions-enabled" class="w-5 h-5" onchange="updateConfig(this)" checked>
+                            <span class="font-bold">Enable Reactions</span>
+                        </div>
+                    </div>
+                    
+                    <h3 class="subsection-title">Other Services</h3>
+                     <div class="p-3 border-2 border-black mb-2">
+                        <div class="nb-checkbox-wrapper mb-2">
+                            <input type="checkbox" data-path="comments.bluesky-comments.show-comments-from-bluesky" class="w-5 h-5" onchange="updateConfig(this)">
+                            <span class="font-bold">Bluesky Comments</span>
+                        </div>
+                        <div class="grid gap-2">
+                             <input type="text" data-path="comments.bluesky-comments.auto-search-for-match.author" class="nb-input" placeholder="Bluesky Handle" oninput="updateConfig(this)">
+                             <input type="text" data-path="comments.bluesky-comments.auto-search-for-match.echo-feed-emoji" class="nb-input" placeholder="Echo Emoji" oninput="updateConfig(this)">
+                             <div class="nb-checkbox-wrapper">
+                                <input type="checkbox" data-path="comments.bluesky-comments.auto-search-for-match.turn-on-auto-search" class="w-5 h-5" onchange="updateConfig(this)">
+                                <span class="font-bold">Auto Search</span>
+                            </div>
+                        </div>
+                    </div>
+                     <div class="p-3 border-2 border-black">
+                        <label class="nb-label">Webmention</label>
+                         <input type="text" data-path="comments.webmention.webmention-link" class="nb-input mb-2" placeholder="https://webmention.io/..." oninput="updateConfig(this)">
+                         <input type="text" data-path="comments.webmention.webmention-api-key" class="nb-input" placeholder="API Key" oninput="updateConfig(this)">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 9. Block Rendering -->
+            <div class="nb-box">
+                <div class="nb-section-header" onclick="toggleSection('sec-blocks')">
+                    <span class="font-bold">9. Block Rendering</span>
+                    <span>▼</span>
+                </div>
+                <div id="sec-blocks" class="nb-section-content">
+                    <div class="space-y-2">
+                        <div class="nb-checkbox-wrapper">
+                            <input type="checkbox" data-path="block-rendering.enable-lightbox" class="w-5 h-5" onchange="updateConfig(this)" checked>
+                            <span class="font-bold">Enable Lightbox for Images</span>
+                        </div>
+                        <div class="nb-checkbox-wrapper">
+                            <input type="checkbox" data-path="block-rendering.full-width-social-embeds" class="w-5 h-5" onchange="updateConfig(this)">
+                            <span class="font-bold">Full Width Social Embeds</span>
+                        </div>
+                         <div class="nb-checkbox-wrapper">
+                            <input type="checkbox" data-path="block-rendering.optimize-images" class="w-5 h-5" onchange="updateConfig(this)" checked>
+                            <span class="font-bold">Optimize Notion Images</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 10. Shortcodes -->
+            <div class="nb-box">
+                <div class="nb-section-header" onclick="toggleSection('sec-shortcodes')">
+                    <span class="font-bold">10. Shortcodes</span>
+                    <span>▼</span>
+                </div>
+                <div id="sec-shortcodes" class="nb-section-content">
+                    <div class="grid gap-3">
+                         <div class="grid grid-cols-2 gap-2">
+                            <div><label class="nb-label">HTML Render</label><input type="text" data-path="shortcodes.html-render" class="nb-input" oninput="updateConfig(this)"></div>
+                            <div><label class="nb-label">HTML Inject</label><input type="text" data-path="shortcodes.html-inject" class="nb-input" oninput="updateConfig(this)"></div>
+                        </div>
+                        <div><label class="nb-label">Shiki Transform</label><input type="text" data-path="shortcodes.shiki-transform" class="nb-input" oninput="updateConfig(this)"></div>
+                        <div><label class="nb-label">MDX Inject</label><input type="text" data-path="shortcodes.mdx-inject" class="nb-input" oninput="updateConfig(this)"></div>
+                        <div><label class="nb-label">Table Marker</label><input type="text" data-path="shortcodes.table" class="nb-input" oninput="updateConfig(this)"></div>
+                         <div class="grid grid-cols-2 gap-2">
+                            <div><label class="nb-label">Expressive Start</label><input type="text" data-path="shortcodes.expressive-code.start" class="nb-input" oninput="updateConfig(this)"></div>
+                            <div><label class="nb-label">Expressive End</label><input type="text" data-path="shortcodes.expressive-code.end" class="nb-input" oninput="updateConfig(this)"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+             <!-- 11. Auto Extracted (Footnotes etc) -->
+            <div class="nb-box">
+                <div class="nb-section-header" onclick="toggleSection('sec-extracted')">
+                    <span class="font-bold">11. Auto-Extracted Sections</span>
+                    <span>▼</span>
+                </div>
+                <div id="sec-extracted" class="nb-section-content">
+                    <h3 class="subsection-title">Footnotes</h3>
+                    <div class="grid gap-3 mb-6">
+                        <div>
+                            <label class="nb-label">Sitewide Page Slug</label>
+                            <input type="text" data-path="auto-extracted-sections.footnotes.sitewide-footnotes-page-slug" class="nb-input" value="_all-footnotes" oninput="updateConfig(this)">
+                        </div>
+                        
+                        <div class="p-3 border-2 border-black">
+                            <label class="nb-label mb-2">In-Page Footnotes Source</label>
+                            <div class="nb-checkbox-wrapper mb-1">
+                                <input type="checkbox" data-path="auto-extracted-sections.footnotes.in-page-footnotes-settings.enabled" class="w-5 h-5" onchange="updateConfig(this)" checked>
+                                <span class="font-bold">Enabled</span>
+                            </div>
+                            <div class="pl-4 space-y-1 border-l-2 border-gray-300 ml-2 mb-4">
+                                <div class="nb-checkbox-wrapper"><input type="radio" name="fn-source" value="end-of-block" class="w-4 h-4 accent-black" onchange="updateFootnoteSource(this)" checked> End of Block</div>
+                                <div class="nb-checkbox-wrapper"><input type="radio" name="fn-source" value="inline-latex-footnote-command" class="w-4 h-4 accent-black" onchange="updateFootnoteSource(this)"> LaTeX Command</div>
+                                <div class="nb-checkbox-wrapper"><input type="radio" name="fn-source" value="start-of-child-blocks" class="w-4 h-4 accent-black" onchange="updateFootnoteSource(this)"> Child Blocks</div>
+                                <div class="nb-checkbox-wrapper"><input type="radio" name="fn-source" value="block-comments" class="w-4 h-4 accent-black" onchange="updateFootnoteSource(this)"> Notion Comments</div>
+                                <div class="nb-checkbox-wrapper"><input type="radio" name="fn-source" value="block-inline-text-comments" class="w-4 h-4 accent-black" onchange="updateFootnoteSource(this)"> Inline Text Comments</div>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-4">
+                                <div><label class="nb-label">Marker Prefix</label><input type="text" data-path="auto-extracted-sections.footnotes.in-page-footnotes-settings.marker-prefix" class="nb-input" value="ft_" oninput="updateConfig(this)"></div>
+                                <div class="flex flex-col justify-end gap-2">
+                                     <div class="nb-checkbox-wrapper">
+                                        <input type="checkbox" data-path="auto-extracted-sections.footnotes.in-page-footnotes-settings.generate-footnotes-section" class="w-4 h-4" onchange="updateConfig(this)" checked> Generate Section
+                                    </div>
+                                     <div class="nb-checkbox-wrapper">
+                                        <input type="checkbox" data-path="auto-extracted-sections.footnotes.in-page-footnotes-settings.show-in-margin-on-large-screens" class="w-4 h-4" onchange="updateConfig(this)" checked> Show in Margin
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3 class="subsection-title">Interlinked Content</h3>
+                     <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-6">
+                        <div class="nb-checkbox-wrapper"><input type="checkbox" data-path="auto-extracted-sections.interlinked-content.site-links-in-page" class="w-5 h-5" onchange="updateConfig(this)" checked> Internal Links</div>
+                        <div class="nb-checkbox-wrapper"><input type="checkbox" data-path="auto-extracted-sections.interlinked-content.external-links-in-page" class="w-5 h-5" onchange="updateConfig(this)" checked> External Links</div>
+                         <div class="nb-checkbox-wrapper"><input type="checkbox" data-path="auto-extracted-sections.interlinked-content.media-and-file-links-in-this-page" class="w-5 h-5" onchange="updateConfig(this)" checked> Media Links</div>
+                         <div class="nb-checkbox-wrapper"><input type="checkbox" data-path="auto-extracted-sections.interlinked-content.links-to-this-page" class="w-5 h-5" onchange="updateConfig(this)" checked> Backlinks</div>
+                    </div>
+
+                    <h3 class="subsection-title">Citations</h3>
+                    <div class="nb-checkbox-wrapper mb-4">
+                        <input type="checkbox" data-path="auto-extracted-sections.citations.add-cite-this-post-section" class="w-5 h-5" onchange="updateConfig(this)">
+                        <span class="font-bold">Add "Cite This Post" Section</span>
+                    </div>
+                    <div class="border-2 border-black p-3">
+                        <h4 class="font-bold uppercase mb-2">BibTeX Processing</h4>
+                        <div class="nb-checkbox-wrapper mb-2">
+                            <input type="checkbox" data-path="auto-extracted-sections.citations.extract-and-process-bibtex-citations.enabled" class="w-5 h-5" onchange="updateConfig(this)">
+                            <span>Enabled</span>
+                        </div>
+                         <div>
+                            <label class="nb-label">BibTeX File URLs (Comma Sep)</label>
+                            <input type="text" class="nb-input mb-2" oninput="updateArray(this, 'auto-extracted-sections.citations.extract-and-process-bibtex-citations.bibtex-file-url-list')">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 mb-2">
+                             <div><label class="nb-label">In-Text Format</label><input type="text" data-path="auto-extracted-sections.citations.extract-and-process-bibtex-citations.in-text-citation-format" class="nb-input" value="[@key]" oninput="updateConfig(this)"></div>
+                             <div>
+                                 <label class="nb-label">Bib Format</label>
+                                 <select class="nb-select" onchange="updateBibFormat(this)">
+                                     <option value="simplified-ieee">Simplified IEEE</option>
+                                     <option value="apa">APA</option>
+                                 </select>
+                             </div>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                             <div class="nb-checkbox-wrapper">
+                                <input type="checkbox" data-path="auto-extracted-sections.citations.extract-and-process-bibtex-citations.generate-bibliography-section" class="w-4 h-4" onchange="updateConfig(this)"> Generate Bibliography
+                            </div>
+                             <div class="nb-checkbox-wrapper">
+                                <input type="checkbox" data-path="auto-extracted-sections.citations.extract-and-process-bibtex-citations.show-in-margin-on-large-screens" class="w-4 h-4" onchange="updateConfig(this)"> Show in Margin
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 12. External Content -->
+            <div class="nb-box">
+                <div class="nb-section-header" onclick="toggleSection('sec-external')">
+                    <span class="font-bold">12. External Content</span>
+                    <span>▼</span>
+                </div>
+                <div id="sec-external" class="nb-section-content">
+                    <div class="nb-checkbox-wrapper mb-4">
+                        <input type="checkbox" data-path="external-content.enabled" class="w-5 h-5" onchange="updateConfig(this)" checked>
+                        <span class="font-bold">Enable External Content</span>
+                    </div>
+                    <div class="space-y-3">
+                        <div><label class="nb-label">Markdown Source URL</label><input type="text" data-path="external-content.sources.markdown" class="nb-input" oninput="updateConfig(this)"></div>
+                        <div><label class="nb-label">MDX Source URL</label><input type="text" data-path="external-content.sources.mdx" class="nb-input" oninput="updateConfig(this)"></div>
+                        <div><label class="nb-label">HTML Source URL</label><input type="text" data-path="external-content.sources.html" class="nb-input" oninput="updateConfig(this)"></div>
+                        <div><label class="nb-label">Custom Components Path</label><input type="text" data-path="external-content.custom-components" class="nb-input" oninput="updateConfig(this)"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 13. Redirects -->
+             <div class="nb-box">
+                <div class="nb-section-header" onclick="toggleSection('sec-redirects')">
+                    <span class="font-bold">13. Redirects</span>
+                    <span>▼</span>
+                </div>
+                <div id="sec-redirects" class="nb-section-content">
+                    <div id="redirectsContainer" class="space-y-2 mb-4"></div>
+                    <button type="button" class="nb-button secondary text-sm" onclick="addRedirectRow()">+ Add Redirect</button>
+                </div>
+            </div>
+
+            <div class="text-center text-sm font-bold opacity-50 pb-8">Designed for Webtrotion</div>
+        </form>
+    </div>
+
+    <!-- Right Panel: Preview -->
+    <div class="lg:w-1/3 w-full sticky top-4 h-[calc(100vh-2rem)] flex flex-col">
+        <div class="nb-box h-full flex flex-col bg-[#1e1e1e] text-white">
+            <div class="p-4 border-b-2 border-white flex justify-between items-center bg-black">
+                <h2 class="font-bold uppercase text-white">Output Preview</h2>
+                <button onclick="copyToClipboard()" class="bg-[rgb(var(--accent-light))] text-white px-3 py-1 text-xs font-bold border border-white hover:bg-white hover:text-black transition-colors">COPY</button>
+            </div>
+            <div class="flex-1 overflow-auto p-4 relative group">
+                <pre id="jsonPreview" class="mono text-xs md:text-sm text-green-400 break-all whitespace-pre-wrap"></pre>
+            </div>
+            <div class="p-4 border-t-2 border-white bg-black">
+                <button onclick="downloadConfig()" class="nb-button w-full text-center block">Download .json5</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // === Full Template with ALL sections Tokenized (JSON5) ===
+        const rawTemplate = `// This file now supports JSON5 format - and has comments to document your configuration! Te configuration has changed significantly since earlier versions. Please review all settings.
+{
+	// === Notion Configuration ===
+	// This section configures the connection to your Notion database.
+	notion: {
+		// (Preferred) The Data Source ID for your Notion integration. This is a more stable way to connect to your database. You can find this in UI here: https://developers.notion.com/reference/retrieve-a-data-source#finding-a-data-source-id
+		"data-source-id": "__NOTION_DATA_SOURCE_ID__",
+		// (Fallback) The classic Database ID. This is used only if 'data-source-id' is empty. The integration will automatically find the Data Source ID and use the first one from this if needed.
+		"database-id": "__NOTION_DATABASE_ID__",
+	},
+
+	// === Site Information ===
+	// Basic details about your website used for metadata, RSS feeds, and SEO.
+	"site-info": {
+		// Your name or the name of your site's author. Used in RSS feeds, OG images etc and other metadata for attribution.
+		author: "__SITE_AUTHOR__",
+		// Your custom domain name (e.g., "example.com"). Important: Do NOT include "https://" or a trailing slash. Leave this empty if you are deploying to a service like Vercel or Netlify without a custom domain.
+		"custom-domain": "__SITE_DOMAIN__",
+		// The sub-directory your site is deployed in (e.g., "/blog"). Leave empty if your site is at the root of your domain. Must start with a forward slash "/" if used.
+		"base-path": "__SITE_BASE_PATH__",
+	},
+
+	// === Collections & Post Listings ===
+	// Configure how your posts are organized and displayed in lists.
+	"collections-and-listings": {
+		// The slug of the Notion page you want to use as your website's home page.
+		"home-page-slug": "__HOME_SLUG__",
+		// If true, a section with the 5 most recent posts will be displayed on the home page.
+		"recent-posts-on-home-page": __RECENT_POSTS_BOOL__,
+		// The number of posts to show on each page of a paginated list (e.g., /posts, /tags/mytag).
+		"number-of-posts-per-page": __POSTS_PER_PAGE__,
+		// The name of the Notion 'Collection' property value for pages that should appear in the main navigation menu. These are treated as static pages (e.g., 'About', 'Contact') rather than blog posts.
+		"menu-pages-collection": "__MENU_COLLECTION__",
+		// An array of 'Collection' names where posts should be displayed in full on list pages. Useful for microblogs or "stream" style collections where showing the full content is desired.
+		"full-preview-collections": __FULL_PREVIEW_ARRAY__,
+		// If true, any post with a slug starting with an underscore (e.g., "_draft-post") will be hidden from all lists (home page, collections, tags), from sitemap and search. The page will still be built and accessible via its direct URL.
+		"hide-underscore-slugs-in-lists": __HIDE_UNDERSCORE_BOOL__,
+	},
+
+	// === Theme Customization ===
+	// Customize the look and feel of your site, including colors and fonts.
+	theme: {
+		// Define your site's color palette.
+		// Colors MUST be in RGB format, with spaces between numbers (e.g., "255 255 255").
+		colors: {
+			// Background colors
+			bg: {
+				light: "__BG_LIGHT__",
+				dark: "__BG_DARK__",
+			},
+			// Main text colors
+			text: {
+				light: "__TEXT_LIGHT__",
+				dark: "__TEXT_DARK__",
+			},
+			// Link colors
+			link: {
+				light: "__LINK_LIGHT__",
+				dark: "__LINK_DARK__",
+			},
+			// Primary accent color (e.g., for titles, highlights)
+			accent: {
+				light: "__ACCENT_LIGHT__",
+				dark: "__ACCENT_DARK__",
+			},
+			// Secondary accent color (e.g., for borders, subtle highlights)
+			"accent-2": {
+				light: "__ACCENT2_LIGHT__",
+				dark: "__ACCENT2_DARK__",
+			},
+			// Color for blockquotes and other special text
+			quote: {
+				light: "__QUOTE_LIGHT__",
+				dark: "__QUOTE_DARK__",
+			},
+		},
+		"fontfamily-google-fonts": {
+			// Just specify the font names - no URLs, no escaping needed!
+			// We automatically load weights [400, 500, 600, 700] and styles [normal, italic] for all fonts (it is fine if they are not available).
+			// Main body/UI font - can be a sans-serif OR serif typeface (e.g., "Roboto", "Merriweather", "Inter")
+			// If empty and mono-font-name is set, mono will be used for everything.
+			"sans-font-name": "__FONT_SANS__",
+			// Monospace font for code blocks (e.g., "Fira Code", "JetBrains Mono")
+			// No need to escape spaces in font names!
+			"mono-font-name": "__FONT_MONO__",
+		},
+	},
+
+	// === Social Media Links ===
+	// Add your social media profile URLs here. They will be displayed in the site's social list component.
+	// The keys (e.g., 'github', 'twitter') are fixed and correspond to specific icons.
+	socials: {
+		email: "__SOCIAL_EMAIL__",
+		github: "__SOCIAL_GITHUB__",
+		googlescholar: "__SOCIAL_GSCHOLAR__",
+		semanticscholar: "__SOCIAL_SEMANTIC__",
+		dblp: "__SOCIAL_DBLP__",
+		substack: "__SOCIAL_SUBSTACK__",
+		facebook: "__SOCIAL_FACEBOOK__",
+		twitter: "__SOCIAL_TWITTER__",
+		threads: "__SOCIAL_THREADS__",
+		instagram: "__SOCIAL_INSTAGRAM__",
+		mastodon: "__SOCIAL_MASTODON__",
+		bluesky: "__SOCIAL_BLUESKY__",
+		calendar: "__SOCIAL_CALENDAR__",
+		kofi: "__SOCIAL_KOFI__",
+		"buy-me-a-coffee": "__SOCIAL_BUYME__",
+		// This link is for forked repo you'll end up having. Feel free to change it to your needs.
+		"this-github-repo": "__SOCIAL_REPO__",
+	},
+
+	// === Analytics Tracking ===
+	tracking: {
+		"google-analytics": {
+			"use-ga": __GA_ENABLED__,
+			// Your Google Analytics 4 Measurement ID (e.g., G-XXXXXXXXXX).
+			"public-ga-tracking-id": "__GA_ID__",
+		},
+		// Umami is a privacy-focused, open-source analytics alternative to Google Analytics.
+		umami: {
+			"use-umami": __UMAMI_ENABLED__,
+			// The website ID from your Umami dashboard.
+			"data-website-id": "__UMAMI_ID__",
+			// Set to true if you are hosting your own Umami instance.
+			"self-hosted": __UMAMI_SELF_HOSTED__,
+			// The URL to your self-hosted Umami script (e.g., "https://my-umami.com/script.js").
+			"self-hosted-umami-url": "__UMAMI_URL__",
+		},
+		// For verifying site ownership with Google.
+		// Paste the 'content' attribute from the meta tag provided by Google Search Console.
+		// e.g., <meta name="google-site-verification" content="YOUR_CODE_HERE" /> -> "YOUR_CODE_HERE"
+		"google-search-console-html-tag": "__GSC_TAG__",
+	},
+
+	// === Open Graph Image Generation ===
+	// Customize the appearance of automatically generated social sharing images (OG images).
+	"og-setup": {
+		// Layout style: 1 for a single column with a background image, 2 for a side-by-side layout.
+		columns: __OG_COLUMNS__,
+		// If true, the post's excerpt will be included in the OG image.
+		excerpt: __OG_EXCERPT__,
+		// Font configuration for OG images
+		// Title and footnote can be any google font
+		"title-font-name": "__OG_TITLE_FONT__",
+		"title-font-weight": __OG_TITLE_WGT__, // Default: 400 (regular)
+		// Footnote font (author, date etc)
+		"footnote-font-name": "__OG_FOOTNOTE_FONT__",
+		"footnote-font-weight": __OG_FOOTNOTE_WGT__, // Default: 400 (regular)
+	},
+
+	// === Comments Configuration ===
+	comments: {
+		// Giscus is a comments system powered by GitHub Discussions. It's free and open-source. Go here for the process of setting it up: https://giscus.app/
+		giscus: {
+			"data-repo": "__GISCUS_REPO__",
+			"data-repo-id": "__GISCUS_REPO_ID__",
+			"data-category": "__GISCUS_CAT__",
+			"data-category-id": "__GISCUS_CAT_ID__",
+			"data-mapping": "__GISCUS_MAP__",
+			"data-input-position": "__GISCUS_POS__",
+			"data-reactions-enabled": __GISCUS_REACT__,
+		},
+
+		// Display comments from Bluesky posts related to your blog posts.
+		"bluesky-comments": {
+			"show-comments-from-bluesky": __BSKY_ENABLED__,
+			"auto-search-for-match": {
+				// If true, the site will automatically search for a Bluesky post by the specified author
+				// that contains a link to the current blog post and a specific emoji.
+				"turn-on-auto-search": __BSKY_SEARCH__,
+				// Your Bluesky handle (e.g., "yourname.bsky.social").
+				author: "__BSKY_AUTHOR__",
+				// The emoji used in your Bluesky post to signify it's a blog post "echo" and should be searched.
+				"echo-feed-emoji": "__BSKY_EMOJI__",
+			},
+		},
+
+		// Webmention allows your site to receive notifications when other websites link to it.
+		// Requires an account with a service like webmention.io.
+		webmention: {
+			// Your API key from your webmention service.
+			"webmention-api-key": "__WEBMENTION_KEY__",
+			// Your personal webmention endpoint URL.
+			"webmention-link": "__WEBMENTION_LINK__",
+		},
+	},
+
+	// === Block Rendering & Visual Display ===
+	// Global settings for how Notion content blocks and media are displayed.
+	"block-rendering": {
+		// If true, clicking on an image will open it in a full-screen lightbox/modal view.
+		"enable-lightbox": __BLK_LIGHTBOX__,
+		// If true, embedded content like tweets will span the full width of the content area on smaller screens.
+		"full-width-social-embeds": __BLK_FULLWIDTH__,
+		// If true, images from Notion will be optimized (converted to WebP, resized).
+		// Warning: This can significantly increase build time, especially for sites with many images, but will be very helpful for your site size (because there isn't multiple size image rendering).
+		"optimize-images": __BLK_OPTIMIZE__,
+	},
+
+	// === Shortcodes ===
+	// Special text markers in Notion code blocks (especially for webtrotion) that trigger custom rendering behavior.
+	shortcodes: {
+		// In a Notion code block, starting with this text will render the rest of the content as HTML inside an iframe.
+		"html-render": "__SC_HTML_RENDER__",
+		// In a Notion code block, starting with this text will inject the rest of the content directly as raw HTML.
+		"html-inject": "__SC_HTML_INJECT__",
+		// This feature is currently not implemented.
+		"expressive-code": {
+			start: "__SC_EXP_START__",
+			end: "__SC_EXP_END__",
+		},
+		// Triggers advanced syntax highlighting features via Shiki transformers. See documentation https://shiki.style/packages/transformers for details
+		"shiki-transform": "__SC_SHIKI__",
+		// In a Notion markdown code block, starting with this text treats the rest as MDX that will be compiled and injected.
+		"mdx-inject": "__SC_MDX_INJECT__",
+		// In a Notion table's first cell, this marker enables datatable features (sorting, filtering).
+		table: "__SC_TABLE__",
+	},
+
+	// === Auto-Extracted Sections ===
+	// Configure sections that are automatically extracted from your Notion content,
+	// such as footnotes and interlinked content.
+	"auto-extracted-sections": {
+		// === Footnotes Configuration ===
+		// Settings for both manual (sitewide) and automatic (in-page) footnotes.
+		footnotes: {
+			// The slug for a single, dedicated page that contains all footnotes for the entire site.
+			// This is a legacy method for manual footnote management.
+			"sitewide-footnotes-page-slug": "__FN_SLUG__",
+			// Settings for the modern, automatic in-page footnote system.
+			"in-page-footnotes-settings": {
+				enabled: __FN_ENABLED__,
+				// Defines where the system should look for footnote content.
+				// Important: Only ONE of these source options can be 'true' at a time.
+				source: {
+					// Looks for definitions at the end of a text block, like \`[^ft_1]: My footnote content.\`Sepearate it by two soft new lines (using shift+enter). This is the method that will work when you export Notion content to Markdown.
+					"end-of-block": __FN_SRC_EOB__,
+					// Uses inline LaTeX-style footnote command: \\footnote{content here}. Use \\{ and \\} for literal braces (useful for LaTeX compatibility).
+					"inline-latex-footnote-command": __FN_SRC_LATEX__,
+					// Treats the first n set of child block(s) indented under a parent block as the footnote content. (n = number of footnote markers in the parent block)
+					"start-of-child-blocks": __FN_SRC_CHILD__,
+					// Uses Notion comments on a block as footnote content.
+					// Requires granting "Read comments" permission to your Notion integration. Else falls back to 'end-of-block' method.
+					"block-comments": __FN_SRC_COMMENTS__,
+					// Not yet implemented.
+					"block-inline-text-comments": __FN_SRC_INLINE__,
+				},
+				// The prefix for footnote markers in your Notion text. e.g., \`[^ft_1]\` for a prefix of \`ft_\`.
+				// Note: This setting does NOT apply to inline-latex-footnote-command source (which uses auto-generated markers).
+				"marker-prefix": "__FN_PREFIX__",
+				// If true, a collated list of all footnotes will be automatically generated at the bottom of the page.
+				"generate-footnotes-section": __FN_GEN_SECTION__,
+				// Defines how footnote markers are displayed within the text.
+				// (Recommended) On large screens, displays footnotes in the margin. On smaller screens, it falls back to a popover.
+				"show-in-margin-on-large-screens": __FN_SHOW_MARGIN__,
+			},
+		},
+
+		// === Interlinked Content Configuration ===
+		// Controls the "Interlinked Content" section that appears at the bottom of posts.
+		// This functionality was previously controlled by a key named 'references'.
+		"interlinked-content": {
+			// If true, displays a list of links to other pages on your site that are mentioned in the current page.
+			"site-links-in-page": __LINK_SITE__,
+			// If true, displays a list of external websites linked from the current page.
+			"external-links-in-page": __LINK_EXT__,
+			// If true, displays a list of media files (images, videos, audio) embedded in the current page.
+			"media-and-file-links-in-this-page": __LINK_MEDIA__,
+			// If true, displays a list of "backlinks" - other pages on your site that link to the current page.
+			"links-to-this-page": __LINK_BACK__,
+			// NOTE: The 'popovers' feature is now enabled by default and its configuration key has been removed.
+		},
+
+		// === Citations Configuration ===
+		citations: {
+			// If true, a "Cite this page" section will be added to each page.
+			"add-cite-this-post-section": __CITE_ADD_SECTION__,
+			// Configure how BibTeX citations are extracted and processed.
+			"extract-and-process-bibtex-citations": {
+				// If true, enables BibTeX citation processing.
+				enabled: __CITE_ENABLED__,
+				// Supported .bib file sources: GitHub Gist, GitHub repo file, Dropbox, and Google Drive public share links.
+				// Google drive and dropbox links do not provide public last-updated timestamps; these files will be fetched and processed on every build and increase processing time, but https://retorque.re/zotero-better-bibtex/ can auto-update and auto sync them.
+				//Gitub links will be checked for last-updated timestamps to avoid unnecessary re-processing but will need push or scripted auto-push to keep updated.
+				"bibtex-file-url-list": [
+					// Example: "https://gist.githubusercontent.com/username/gistid/raw/filename.bib",__CITE_URLS_CONTENT__
+				],
+				// The pattern for in-text citations. Supports #cite(key) for support with typst, \\cite{key} for support with latex, and for support with pandoc [@key]. This will be rendered as [firstName et al, year] or [1][2] in text. Only one format is supported at a time.
+				"in-text-citation-format": "__CITE_FORMAT_TEXT__",
+				// The citation style for the bibliography (e.g., "apa", "ieee", "simplified-ieee"). Only one format is supported at a time.
+				"bibliography-format": {
+					//For ICML/ReNeurIPS style simplified ieee is used.
+					"simplified-ieee": __CITE_FMT_IEEE__,
+					//For other academic writing APA (ACL is a pared down version of this) is used.
+					apa: __CITE_FMT_APA__,
+				},
+				// If true, a collated bibliography section will be automatically generated at the bottom of the page.
+				"generate-bibliography-section": __CITE_GEN_SECTION__,
+				// If true, show citations in the right margin on large screens (≥1024px). On smaller screens, citations will display as popovers.
+				"show-in-margin-on-large-screens": __CITE_SHOW_MARGIN__,
+			},
+		},
+	},
+
+	// === External Content ===
+	// URL prefixes that tell the site to fetch GitHub content and render it locally.
+	// Add public *parent* GitHub folder/file URLs (/tree/... or /blob/...) used in Notion’s “External URL” field.
+	// Each External URL in Notion should point to a post folder inside one of those parents.
+	// If it matches a prefix, the build downloads and renders it as internal Markdown/MDX/HTML.
+	"external-content": {
+		// Toggle external content pulled from remote sources via Notion’s “External URL” field. Must be true to use features below.
+		enabled: true,
+		// Remote folders containing external content files.
+		sources: {
+			// Each subfolder is treated as a markdown post. Supports media, styled using corresponding Notion blocks.
+			// Example: https://github.com/nerdymomocat-templates/webtrotion-external-content/tree/main/markdown
+			markdown: "__EXT_SRC_MD__",
+			// Each subfolder is treated as an MDX post. Supports custom components/media, lightly Notion-styled.
+			// Example: https://github.com/nerdymomocat-templates/webtrotion-external-content/tree/main/mdx
+			mdx: "__EXT_SRC_MDX__",
+			// Each subfolder is treated as an HTML post. Supports assets, no styling applied.
+			// Example: https://github.com/nerdymomocat-templates/webtrotion-external-content/tree/main/html
+			html: "__EXT_SRC_HTML__",
+		},
+		// Remote component folders MDX can import from (downloaded to src/external-content/custom-components).
+		// Also usable for markdown codeblocks via \`mdx-inject\` shortcode above; supports media, no styling applied.
+		"custom-components": "__EXT_COMPONENTS__",
+	},
+
+	// === URL Redirects ===
+	// Create 301 redirects for old URLs to new URLs. Useful for SEO when migrating content.
+	// Format: "/old-path": "/new-path"
+	// Example: "/my-old-post.html": "/posts/my-new-post-slug/"
+	redirects: __REDIRECTS_JSON__,
+}`;
+
+        // === Data State ===
+        let config = {
+            notion: { "data-source-id": "f6e3813f-eb93-4a77-bbf4-81ad653d63ba", "database-id": "" },
+            "site-info": { author: "", "custom-domain": "", "base-path": "" },
+            "collections-and-listings": {
+                "home-page-slug": "home",
+                "recent-posts-on-home-page": true,
+                "number-of-posts-per-page": 10,
+                "menu-pages-collection": "main",
+                "full-preview-collections": ["Stream"],
+                "hide-underscore-slugs-in-lists": true,
+            },
+            theme: {
+                colors: {
+                    bg: { light: "249 249 249", dark: "28 30 32" },
+                    text: { light: "34 39 42", dark: "255 255 255" },
+                    link: { light: "85 123 118", dark: "199 200 203" },
+                    accent: { light: "203 41 65", dark: "41 188 136" },
+                    "accent-2": { light: "17 17 17", dark: "237 237 237" },
+                    quote: { light: "203 41 65", dark: "205 254 183" },
+                },
+                "fontfamily-google-fonts": { "sans-font-name": "Roboto", "mono-font-name": "Roboto Mono" },
+            },
+            socials: {
+                email: "mailto:your-email@example.com", github: "", googlescholar: "", semanticscholar: "",
+                dblp: "", substack: "", facebook: "", twitter: "", threads: "", instagram: "", mastodon: "",
+                bluesky: "", calendar: "", kofi: "", "buy-me-a-coffee": "",
+                "this-github-repo": "https://github.com/nerdymomocat-templates/webtrotion-astro-notion-cms-website-blog"
+            },
+            tracking: {
+                "google-analytics": { "use-ga": true, "public-ga-tracking-id": "" },
+                umami: { "use-umami": false, "data-website-id": "", "self-hosted": false, "self-hosted-umami-url": "" },
+                "google-search-console-html-tag": "",
+            },
+            comments: {
+                giscus: {
+                    "data-repo": "nerdymomocat-templates/webtrotion-astro-notion-cms-website-blog",
+                    "data-repo-id": "R_kgDOK0FuUA",
+                    "data-category": "Announcements",
+                    "data-category-id": "DIC_kwDOK0FuUM4CbZ5A",
+                    "data-mapping": "pathname",
+                    "data-input-position": "top",
+                    "data-reactions-enabled": true
+                },
+                "bluesky-comments": { 
+                    "show-comments-from-bluesky": false, 
+                    "auto-search-for-match": { "turn-on-auto-search": false, author: "", "echo-feed-emoji": "" } 
+                },
+                webmention: { "webmention-link": "", "webmention-api-key": "" }
+            },
+            "og-setup": { 
+                columns: 1, excerpt: false, 
+                "title-font-name": "Kreon", "title-font-weight": 500,
+                "footnote-font-name": "JetBrains Mono", "footnote-font-weight": 700 
+            },
+            "block-rendering": { "enable-lightbox": true, "full-width-social-embeds": false, "optimize-images": true },
+            shortcodes: {
+                "html-render": "<!DOCTYPE html> <!-- iframe -->",
+                "html-inject": "<!DOCTYPE html> <!-- inject -->",
+                "expressive-code": { start: "<<expressive-code-start>>", end: "<<expressive-code-end>>" },
+                "shiki-transform": "<<shiki-transform>>",
+                "mdx-inject": "<!-- mdx inject -->",
+                table: "<<🗂️>>",
+            },
+            "auto-extracted-sections": {
+                footnotes: { 
+                    "sitewide-footnotes-page-slug": "_all-footnotes",
+                    "in-page-footnotes-settings": {
+                        enabled: true,
+                        source: { "end-of-block": true, "inline-latex-footnote-command": false, "start-of-child-blocks": false, "block-comments": false, "block-inline-text-comments": false },
+                        "marker-prefix": "ft_",
+                        "generate-footnotes-section": true,
+                        "show-in-margin-on-large-screens": true
+                    }
+                },
+                "interlinked-content": { "site-links-in-page": true, "external-links-in-page": true, "media-and-file-links-in-this-page": true, "links-to-this-page": true },
+                citations: {
+                    "add-cite-this-post-section": false,
+                    "extract-and-process-bibtex-citations": {
+                        enabled: false,
+                        "bibtex-file-url-list": [],
+                        "in-text-citation-format": "[@key]",
+                        "bibliography-format": { "simplified-ieee": true, apa: false },
+                        "generate-bibliography-section": false,
+                        "show-in-margin-on-large-screens": false
+                    }
+                }
+            },
+            "external-content": { enabled: true, sources: { markdown: "", mdx: "", html: "" }, "custom-components": "" },
+            redirects: {}
+        };
+
+        // === Helper Functions ===
+
+        function set(obj, path, value) {
+            var schema = obj;
+            var pList = path.split('.');
+            var len = pList.length;
+            for(var i = 0; i < len-1; i++) {
+                var elem = pList[i];
+                if( !schema[elem] ) schema[elem] = {}
+                schema = schema[elem];
+            }
+            schema[pList[len-1]] = value;
+        }
+
+        function rgbToHex(r, g, b) {
+            return "#" + [r, g, b].map(x => {
+                const hex = parseInt(x).toString(16);
+                return hex.length === 1 ? '0' + hex : hex;
+            }).join('');
+        }
+
+        function hexToRgbString(hex) {
+            let r = 0, g = 0, b = 0;
+            if (hex.length == 4) {
+                r = "0x" + hex[1] + hex[1];
+                g = "0x" + hex[2] + hex[2];
+                b = "0x" + hex[3] + hex[3];
+            } else if (hex.length == 7) {
+                r = "0x" + hex[1] + hex[2];
+                g = "0x" + hex[3] + hex[4];
+                b = "0x" + hex[5] + hex[6];
+            }
+            return `${+r} ${+g} ${+b}`;
+        }
+
+        function configRgbToHex(str) {
+            const parts = str.split(' ');
+            if(parts.length !== 3) return '#000000';
+            return rgbToHex(parts[0], parts[1], parts[2]);
+        }
+
+        function renderColorInputs() {
+            const container = document.getElementById('colorContainer');
+            const categories = ['bg', 'text', 'link', 'accent', 'accent-2', 'quote'];
+            const bgLightHex = configRgbToHex(config.theme.colors.bg.light);
+            const bgDarkHex = configRgbToHex(config.theme.colors.bg.dark);
+
+            container.innerHTML = categories.map(cat => {
+                let lightSpanClass = "mono text-xs p-1 border border-black w-24 text-center block";
+                let darkSpanClass = "mono text-xs p-1 border border-black w-24 text-center block";
+                let lightStyle = "", darkStyle = "";
+
+                if (cat === 'bg') {
+                    lightSpanClass += " bg-gray-100";
+                    darkSpanClass += " bg-gray-800 text-white";
+                } else {
+                    const lightColor = configRgbToHex(config.theme.colors[cat].light);
+                    const darkColor = configRgbToHex(config.theme.colors[cat].dark);
+                    lightStyle = `background-color: ${bgLightHex}; color: ${lightColor}; font-weight: bold;`;
+                    darkStyle = `background-color: ${bgDarkHex}; color: ${darkColor}; font-weight: bold;`;
+                }
+
+                return `
+                <div class="nb-box p-4 border-2 border-black">
+                    <h4 class="font-bold uppercase mb-2 text-lg">${cat}</h4>
+                    <div class="flex flex-col gap-2">
+                        <div class="flex items-center justify-between">
+                            <label class="nb-label mb-0 text-xs">Light</label>
+                            <div class="flex items-center gap-2">
+                                <input type="color" value="${configRgbToHex(config.theme.colors[cat].light)}" onchange="updateColor(this, 'theme.colors.${cat}.light')" class="w-8 h-8 border border-black p-0 cursor-pointer">
+                                <span class="${lightSpanClass}" style="${lightStyle}">${config.theme.colors[cat].light}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <label class="nb-label mb-0 text-xs">Dark</label>
+                            <div class="flex items-center gap-2">
+                                <input type="color" value="${configRgbToHex(config.theme.colors[cat].dark)}" onchange="updateColor(this, 'theme.colors.${cat}.dark')" class="w-8 h-8 border border-black p-0 cursor-pointer">
+                                <span class="${darkSpanClass}" style="${darkStyle}">${config.theme.colors[cat].dark}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        function renderSocialInputs() {
+            const container = document.getElementById('socialsContainer');
+            const keys = Object.keys(config.socials);
+            container.innerHTML = keys.map(key => `
+                <div class="flex flex-col md:flex-row md:items-center gap-2">
+                    <label class="nb-label w-32 shrink-0">${key}</label>
+                    <input type="text" data-path="socials.${key}" class="nb-input flex-1" value="${config.socials[key]}" oninput="updateConfig(this)">
+                </div>
+            `).join('');
+        }
+
+        // === Redirects Logic ===
+        function renderRedirects() {
+             const container = document.getElementById('redirectsContainer');
+             const redirects = config.redirects;
+             const keys = Object.keys(redirects);
+             
+             if(keys.length === 0) {
+                 container.innerHTML = '<div class="text-sm italic opacity-50">No redirects configured.</div>';
+                 return;
+             }
+
+             container.innerHTML = keys.map((oldPath, index) => `
+                <div class="flex gap-2 items-center">
+                    <input type="text" class="nb-input w-1/2" value="${oldPath}" placeholder="/old" onchange="updateRedirectKey('${oldPath}', this.value)">
+                    <span class="font-bold">→</span>
+                    <input type="text" class="nb-input w-1/2" value="${redirects[oldPath]}" placeholder="/new" onchange="updateRedirectValue('${oldPath}', this.value)">
+                    <button type="button" class="nb-button delete" onclick="removeRedirect('${oldPath}')">X</button>
+                </div>
+             `).join('');
+        }
+
+        function addRedirectRow() {
+            config.redirects["/new-path-" + Date.now()] = "";
+            renderRedirects();
+            renderPreview();
+        }
+
+        function removeRedirect(key) {
+            delete config.redirects[key];
+            renderRedirects();
+            renderPreview();
+        }
+
+        function updateRedirectKey(oldKey, newKey) {
+            if (oldKey === newKey) return;
+            const val = config.redirects[oldKey];
+            delete config.redirects[oldKey];
+            config.redirects[newKey] = val;
+            renderRedirects();
+            renderPreview();
+        }
+
+        function updateRedirectValue(key, newVal) {
+            config.redirects[key] = newVal;
+            renderPreview();
+        }
+        
+        // === Bib Format Logic ===
+        function updateBibFormat(select) {
+            const bib = config["auto-extracted-sections"].citations["extract-and-process-bibtex-citations"]["bibliography-format"];
+            // Reset
+            bib["simplified-ieee"] = false;
+            bib["apa"] = false;
+            // Set
+            bib[select.value] = true;
+            renderPreview();
+        }
+
+        // === Interaction Logic ===
+
+        function toggleSection(id) {
+            const el = document.getElementById(id);
+            document.querySelectorAll('.nb-section-content').forEach(d => {
+                if(d.id !== id) d.style.display = 'none';
+            });
+            el.style.display = el.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function updateConfig(input) {
+            const path = input.dataset.path;
+            let value = input.type === 'checkbox' ? input.checked : (input.type === 'number' ? parseFloat(input.value) : input.value);
+            set(config, path, value);
+            renderPreview();
+        }
+        
+        function updateFootnoteSource(input) {
+            const sources = config["auto-extracted-sections"].footnotes["in-page-footnotes-settings"].source;
+            Object.keys(sources).forEach(k => sources[k] = false);
+            sources[input.value] = true;
+            renderPreview();
+        }
+
+        function updateArray(input, path) {
+            const val = input.value.split(',').map(s => s.trim()).filter(s => s !== "");
+            set(config, path, val);
+            renderPreview();
+        }
+
+        function updateColor(input, path) {
+            const rgbStr = hexToRgbString(input.value);
+            set(config, path, rgbStr);
+            renderPreview();
+            renderColorInputs();
+        }
+
+        // === Theme Preview Logic ===
+        let previewMode = 'light'; // 'light' or 'dark'
+
+        function toggleThemePreview() {
+            const container = document.getElementById('theme-preview-container');
+            container.classList.toggle('hidden');
+            if (!container.classList.contains('hidden')) {
+                renderThemePreview();
+            }
+        }
+
+        function togglePreviewMode(btn) {
+            previewMode = previewMode === 'light' ? 'dark' : 'light';
+            btn.textContent = previewMode === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode';
+            renderThemePreview();
+        }
+
+        function renderThemePreview() {
+            const container = document.getElementById('preview-content');
+            if (document.getElementById('theme-preview-container').classList.contains('hidden')) return;
+
+            const getRgb = (str) => `rgb(${str.split(' ').join(',')})`;
+            const colors = config.theme.colors;
+            const fonts = config.theme['fontfamily-google-fonts'];
+
+            const bgVal = getRgb(colors.bg[previewMode]);
+            const textVal = getRgb(colors.text[previewMode]);
+            
+            container.style.backgroundColor = bgVal;
+            container.style.color = textVal;
+
+            const sansFamily = fonts['sans-font-name'];
+            const monoFamily = fonts['mono-font-name'];
+            container.style.fontFamily = sansFamily ? `"${sansFamily}", sans-serif` : 'sans-serif';
+
+            const h1 = document.getElementById('preview-h1');
+            const link = document.getElementById('preview-link');
+            const quote = document.getElementById('preview-quote');
+            const code = document.getElementById('preview-code');
+
+            h1.style.color = getRgb(colors.accent[previewMode]);
+            link.style.color = getRgb(colors.link[previewMode]);
+            
+            quote.style.borderColor = getRgb(colors['accent-2'][previewMode]);
+            quote.style.color = getRgb(colors.quote[previewMode]);
+
+            if (monoFamily) {
+                code.style.fontFamily = `"${monoFamily}", monospace`;
+            }
+            code.style.backgroundColor = previewMode === 'light' ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.1)';
+        }
+
+        // === Font Preview Logic ===
+        const fontDebounceTimers = {};
+
+        function updateFontPreview(input, type) {
+            updateConfig(input);
+            const fontName = input.value.trim();
+            if (!fontName) return;
+            const label = document.getElementById(`label-${type}`);
+            
+            // Check if it is a theme font or OG font to set fallback
+            const isMono = type === 'mono' || type === 'og-footnote';
+            
+            label.style.fontFamily = `"${fontName}", ${isMono ? 'monospace' : 'sans-serif'}`;
+            renderThemePreview();
+            if (fontDebounceTimers[type]) clearTimeout(fontDebounceTimers[type]);
+            fontDebounceTimers[type] = setTimeout(() => { loadGoogleFont(fontName, type); }, 1000);
+        }
+
+        function handleFontBlur(input, type) {
+            if (fontDebounceTimers[type]) {
+                clearTimeout(fontDebounceTimers[type]);
+                fontDebounceTimers[type] = null;
+                const fontName = input.value.trim();
+                if (fontName) loadGoogleFont(fontName, type);
+            }
+        }
+
+        function loadGoogleFont(fontName, type) {
+            const linkId = `font-link-${type}`;
+            let link = document.getElementById(linkId);
+            if (!link) {
+                link = document.createElement('link');
+                link.id = linkId;
+                link.rel = 'stylesheet';
+                document.head.appendChild(link);
+            }
+            const formattedName = fontName.replace(/\s+/g, '+');
+            link.href = `https://fonts.googleapis.com/css2?family=${formattedName}:wght@400;500;700&display=swap`;
+        }
+
+        // === OG Preview Logic ===
+        let ogRandomData = {
+            title: "The Future of Web Development",
+            excerpt: "Exploring the next generation of static site generators and the power of Notion as a CMS.",
+            author: "Jane Doe",
+            date: "Oct 24, 2025",
+            image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
+        };
+
+        function randomizeOGContent() {
+            const titles = [
+                "Understanding React Server Components",
+                "Why Rust is eating the world",
+                "Designing for Accessibility First",
+                "A Guide to Modern CSS Layouts",
+                "Notion as a Database: Pros & Cons",
+                "Deploying Astro on the Edge"
+            ];
+            const excerpts = [
+                "A deep dive into the architectural changes coming to the frontend ecosystem.",
+                "Memory safety, performance, and developer experience all in one package.",
+                "Ensuring your web applications are usable by everyone, regardless of ability.",
+                "Grid, Flexbox, and Subgrid explained with practical examples.",
+                "How to structure your workspace for maximum productivity.",
+                "Leveraging global distribution for lightning fast websites."
+            ];
+            const authors = ["Alice Smith", "Bob Jones", "Charlie Day", "Dana White", "Evan You"];
+            const images = [
+                "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80",
+                "https://images.unsplash.com/photo-1550439062-609e1531270e?auto=format&fit=crop&w=1200&q=80",
+                "https://images.unsplash.com/photo-1614741118887-7a4ee193a5fa?auto=format&fit=crop&w=1200&q=80",
+                "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80"
+            ];
+
+            ogRandomData = {
+                title: titles[Math.floor(Math.random() * titles.length)],
+                excerpt: excerpts[Math.floor(Math.random() * excerpts.length)],
+                author: authors[Math.floor(Math.random() * authors.length)],
+                date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+                image: images[Math.floor(Math.random() * images.length)]
+            };
+            renderOGPreview();
+        }
+
+        function renderOGPreview() {
+            const canvas = document.getElementById('og-canvas');
+            if(!canvas) return;
+            
+            const getRgb = (str) => {
+                if(!str) return 'rgb(255,255,255)';
+                const p = str.split(' ');
+                return `rgb(${p[0]}, ${p[1]}, ${p[2]})`;
+            };
+            
+            const getRgba = (str, alpha) => {
+                if(!str) return `rgba(255,255,255,${alpha})`;
+                const p = str.split(' ');
+                return `rgba(${p[0]}, ${p[1]}, ${p[2]}, ${alpha})`;
+            };
+
+            const c = config.theme.colors;
+            const colors = {
+                bg: getRgb(c.bg.light),
+                accent2: getRgb(c['accent-2'].light),
+                accent2_raw: c['accent-2'].light,
+                accent: getRgb(c.accent.light),
+                text: getRgb(c.text.light),
+                quote: getRgb(c.quote.light),
+                bg_raw: c.bg.light
+            };
+
+            const fonts = {
+                title: config['og-setup']['title-font-name'] || 'sans-serif',
+                footnote: config['og-setup']['footnote-font-name'] || 'monospace',
+                titleWgt: config['og-setup']['title-font-weight'] || 700,
+                footnoteWgt: config['og-setup']['footnote-font-weight'] || 700
+            };
+
+            const columns = parseInt(config['og-setup'].columns || 1);
+            const includeExcerpt = config['og-setup'].excerpt;
+            const hasImage = document.getElementById('og-simulate-image').checked;
+
+            const borderStyle = `1px solid ${colors.accent2}`;
+            const shadowStyle = `5px 5px 0px ${colors.accent2}`;
+            const bgImagePattern = `radial-gradient(circle at 25px 25px, ${getRgba(colors.accent2_raw, 0.1)} 2%, transparent 0%), radial-gradient(circle at 75px 75px, ${getRgba(colors.accent2_raw, 0.1)} 2%, transparent 0%)`;
+            const maskImageStyle = `linear-gradient(to bottom, ${getRgba(colors.bg_raw, 0.1)} 30%, ${getRgba(colors.bg_raw, 0.1)} 30%, ${getRgba(colors.bg_raw, 0.25)} 80%, ${getRgba(colors.bg_raw, 0.1)} 80%)`;
+
+            canvas.style.backgroundColor = colors.bg;
+            canvas.innerHTML = ''; 
+
+            const wrapper = document.createElement('div');
+            wrapper.className = "w-full h-full flex flex-col";
+            
+            if (!hasImage) {
+                wrapper.style.backgroundImage = bgImagePattern;
+                wrapper.style.backgroundSize = "100px 100px";
+            }
+
+            const innerContainer = document.createElement('div');
+            innerContainer.style.padding = "20px";
+            innerContainer.className = "flex w-full h-full justify-center items-stretch";
+
+            const borderBox = document.createElement('div');
+            borderBox.className = "flex flex-row justify-between w-full h-full p-[10px] rounded-lg z-10 relative";
+            borderBox.style.border = borderStyle;
+            borderBox.style.boxShadow = shadowStyle;
+
+            if (columns == 1 && hasImage) {
+                const imgBg = document.createElement('img');
+                imgBg.src = ogRandomData.image;
+                imgBg.className = "absolute top-0 left-0 w-full h-full object-cover";
+                imgBg.style.maskImage = maskImageStyle;
+                imgBg.style.webkitMaskImage = maskImageStyle; 
+                wrapper.appendChild(imgBg);
+
+                // UPDATED: Added Excerpt logic and increased font sizes (+2px)
+                let contentHtml = `
+                    <div class="flex-1 flex items-center w-full" style="font-size: 18px; font-weight: ${fonts.titleWgt}; line-height: 1.2; padding: 10px 20px; color: ${colors.accent}; font-family: '${fonts.title}'">
+                        ${ogRandomData.title}
+                    </div>
+                `;
+
+                if (includeExcerpt) {
+                    contentHtml += `
+                    <div class="flex-1 flex w-full" style="font-size: 14px; font-weight: ${fonts.titleWgt}; line-height: 1.3; padding: 0 20px; color: ${colors.text}; font-family: '${fonts.footnote}'">
+                        ${ogRandomData.excerpt}
+                    </div>`;
+                }
+
+                contentHtml += `
+                    <div class="flex flex-row justify-between items-center w-full" style="font-size: 12px; font-weight: ${fonts.footnoteWgt}; color: ${colors.quote}; padding: 10px 20px; font-family: '${fonts.footnote}'">
+                        <div>${ogRandomData.date}</div>
+                        <div class="flex items-center gap-2">
+                            <span>${ogRandomData.author}</span>
+                        </div>
+                    </div>
+                `;
+
+                borderBox.innerHTML = `
+                    <div class="flex flex-col flex-1 pb-[44px] w-full">
+                        ${contentHtml}
+                    </div>
+                `;
+            } 
+            else if (columns == 2 && hasImage) {
+                const imgDiv = document.createElement('div');
+                imgDiv.className = "flex flex-1";
+                const img = document.createElement('img');
+                img.src = ogRandomData.image;
+                img.className = "w-full h-full object-contain object-center";
+                imgDiv.appendChild(img);
+
+                const textDiv = document.createElement('div');
+                textDiv.className = "flex flex-col flex-1 ml-4 pb-[44px]";
+                
+                // UPDATED: Increased font sizes (+2px)
+                const titleSize = includeExcerpt ? "16px" : "18px";
+                const titleFlex = includeExcerpt ? "0.5" : "1";
+
+                let contentHtml = `
+                    <div class="flex" style="flex: ${titleFlex}; font-size: ${titleSize}; font-weight: ${fonts.titleWgt}; line-height: 1.2; padding: 10px 0 20px 0; color: ${colors.accent}; font-family: '${fonts.title}'">
+                        ${ogRandomData.title}
+                    </div>
+                `;
+
+                if (includeExcerpt) {
+                    contentHtml += `
+                    <div class="flex-1 flex" style="font-size: 14px; font-weight: ${fonts.titleWgt}; line-height: 1.3; padding: 10px 0 20px 0; color: ${colors.text}; font-family: '${fonts.footnote}'">
+                        ${ogRandomData.excerpt}
+                    </div>`;
+                }
+
+                contentHtml += `
+                    <div class="flex flex-row justify-between items-center" style="font-size: 12px; font-weight: ${fonts.footnoteWgt}; color: ${colors.quote}; font-family: '${fonts.footnote}'">
+                        <div>${ogRandomData.date}</div>
+                        <div class="flex items-center gap-2"><span>${ogRandomData.author}</span></div>
+                    </div>
+                `;
+
+                textDiv.innerHTML = contentHtml;
+                borderBox.appendChild(imgDiv);
+                borderBox.appendChild(textDiv);
+            }
+            else {
+                // UPDATED: Increased font sizes (+2px)
+                const titleSize = includeExcerpt ? "18px" : "20px";
+                const titleFlex = includeExcerpt ? "0.5" : "1";
+                
+                let contentHtml = `
+                     <div class="flex items-center justify-center text-center w-full" style="flex: ${titleFlex}; font-size: ${titleSize}; font-weight: ${fonts.titleWgt}; line-height: 1.1; padding: 20px 30px; color: ${colors.accent}; font-family: '${fonts.title}'">
+                        ${ogRandomData.title}
+                    </div>
+                `;
+
+                if (includeExcerpt) {
+                     contentHtml += `
+                    <div class="flex-1 flex justify-center text-center w-full" style="font-size: 14px; font-weight: ${fonts.titleWgt}; line-height: 1.3; padding: 10px 30px; color: ${colors.text}; font-family: '${fonts.footnote}'">
+                        ${ogRandomData.excerpt}
+                    </div>`;
+                }
+
+                contentHtml += `
+                    <div class="flex flex-row justify-between items-center w-full" style="font-size: ${includeExcerpt ? '12px' : '14px'}; font-weight: ${fonts.footnoteWgt}; color: ${colors.quote}; padding: 10px 30px; font-family: '${fonts.footnote}'">
+                        <div>${ogRandomData.date}</div>
+                        <div class="flex items-center gap-2"><span>${ogRandomData.author}</span></div>
+                    </div>
+                `;
+
+                borderBox.innerHTML = `
+                    <div class="flex flex-col flex-1 pb-[44px] w-full">
+                        ${contentHtml}
+                    </div>
+                `;
+            }
+
+            innerContainer.appendChild(borderBox);
+            wrapper.appendChild(innerContainer);
+            canvas.appendChild(wrapper);
+        }
+
+        // === PREVIEW RENDERER WITH REPLACEMENT ===
+
+        function renderPreview() {
+            const c = config.comments;
+            const f = config["auto-extracted-sections"].footnotes["in-page-footnotes-settings"];
+            const cite = config["auto-extracted-sections"].citations;
+            const citeSet = cite["extract-and-process-bibtex-citations"];
+            
+            // Handle Bibtex list specifically to include comment
+            const bibUrls = citeSet['bibtex-file-url-list'];
+            const bibString = bibUrls.length > 0 ? "\n\t\t\t\t\t" + bibUrls.map(u => `"${u}"`).join(',\n\t\t\t\t\t') : "";
+
+            const replacements = {
+                '__NOTION_DATA_SOURCE_ID__': config.notion['data-source-id'],
+                '__NOTION_DATABASE_ID__': config.notion['database-id'],
+                '__SITE_AUTHOR__': config['site-info'].author,
+                '__SITE_DOMAIN__': config['site-info']['custom-domain'],
+                '__SITE_BASE_PATH__': config['site-info']['base-path'],
+                '__HOME_SLUG__': config['collections-and-listings']['home-page-slug'],
+                '__RECENT_POSTS_BOOL__': config['collections-and-listings']['recent-posts-on-home-page'],
+                '__POSTS_PER_PAGE__': config['collections-and-listings']['number-of-posts-per-page'],
+                '__MENU_COLLECTION__': config['collections-and-listings']['menu-pages-collection'],
+                '__FULL_PREVIEW_ARRAY__': JSON.stringify(config['collections-and-listings']['full-preview-collections']), // Forces double quotes
+                '__HIDE_UNDERSCORE_BOOL__': config['collections-and-listings']['hide-underscore-slugs-in-lists'],
+                
+                '__BG_LIGHT__': config.theme.colors.bg.light,
+                '__BG_DARK__': config.theme.colors.bg.dark,
+                '__TEXT_LIGHT__': config.theme.colors.text.light,
+                '__TEXT_DARK__': config.theme.colors.text.dark,
+                '__LINK_LIGHT__': config.theme.colors.link.light,
+                '__LINK_DARK__': config.theme.colors.link.dark,
+                '__ACCENT_LIGHT__': config.theme.colors.accent.light,
+                '__ACCENT_DARK__': config.theme.colors.accent.dark,
+                '__ACCENT2_LIGHT__': config.theme.colors['accent-2'].light,
+                '__ACCENT2_DARK__': config.theme.colors['accent-2'].dark,
+                '__QUOTE_LIGHT__': config.theme.colors.quote.light,
+                '__QUOTE_DARK__': config.theme.colors.quote.dark,
+                
+                '__FONT_SANS__': config.theme['fontfamily-google-fonts']['sans-font-name'],
+                '__FONT_MONO__': config.theme['fontfamily-google-fonts']['mono-font-name'],
+                
+                '__SOCIAL_EMAIL__': config.socials.email,
+                '__SOCIAL_GITHUB__': config.socials.github,
+                '__SOCIAL_GSCHOLAR__': config.socials.googlescholar,
+                '__SOCIAL_SEMANTIC__': config.socials.semanticscholar,
+                '__SOCIAL_DBLP__': config.socials.dblp,
+                '__SOCIAL_SUBSTACK__': config.socials.substack,
+                '__SOCIAL_FACEBOOK__': config.socials.facebook,
+                '__SOCIAL_TWITTER__': config.socials.twitter,
+                '__SOCIAL_THREADS__': config.socials.threads,
+                '__SOCIAL_INSTAGRAM__': config.socials.instagram,
+                '__SOCIAL_MASTODON__': config.socials.mastodon,
+                '__SOCIAL_BLUESKY__': config.socials.bluesky,
+                '__SOCIAL_CALENDAR__': config.socials.calendar,
+                '__SOCIAL_KOFI__': config.socials.kofi,
+                '__SOCIAL_BUYME__': config.socials['buy-me-a-coffee'],
+                '__SOCIAL_REPO__': config.socials['this-github-repo'],
+
+                '__GA_ENABLED__': config.tracking['google-analytics']['use-ga'],
+                '__GA_ID__': config.tracking['google-analytics']['public-ga-tracking-id'],
+                '__UMAMI_ENABLED__': config.tracking.umami['use-umami'],
+                '__UMAMI_ID__': config.tracking.umami['data-website-id'],
+                '__UMAMI_SELF_HOSTED__': config.tracking.umami['self-hosted'],
+                '__UMAMI_URL__': config.tracking.umami['self-hosted-umami-url'],
+                '__GSC_TAG__': config.tracking['google-search-console-html-tag'],
+
+                '__GISCUS_REPO__': c.giscus['data-repo'],
+                '__GISCUS_REPO_ID__': c.giscus['data-repo-id'],
+                '__GISCUS_CAT__': c.giscus['data-category'],
+                '__GISCUS_CAT_ID__': c.giscus['data-category-id'],
+                '__GISCUS_MAP__': c.giscus['data-mapping'],
+                '__GISCUS_POS__': c.giscus['data-input-position'],
+                '__GISCUS_REACT__': c.giscus['data-reactions-enabled'],
+                
+                // OG
+                '__OG_COLUMNS__': config['og-setup'].columns,
+                '__OG_EXCERPT__': config['og-setup'].excerpt,
+                '__OG_TITLE_FONT__': config['og-setup']['title-font-name'],
+                '__OG_TITLE_WGT__': config['og-setup']['title-font-weight'],
+                '__OG_FOOTNOTE_FONT__': config['og-setup']['footnote-font-name'],
+                '__OG_FOOTNOTE_WGT__': config['og-setup']['footnote-font-weight'],
+
+                // Blocks
+                '__BLK_LIGHTBOX__': config['block-rendering']['enable-lightbox'],
+                '__BLK_FULLWIDTH__': config['block-rendering']['full-width-social-embeds'],
+                '__BLK_OPTIMIZE__': config['block-rendering']['optimize-images'],
+                
+                // Extracted & Footnotes
+                '__FN_SLUG__': config['auto-extracted-sections'].footnotes['sitewide-footnotes-page-slug'],
+                '__FN_ENABLED__': f.enabled,
+                '__FN_SRC_EOB__': f.source['end-of-block'],
+                '__FN_SRC_LATEX__': f.source['inline-latex-footnote-command'],
+                '__FN_SRC_CHILD__': f.source['start-of-child-blocks'],
+                '__FN_SRC_COMMENTS__': f.source['block-comments'],
+                '__FN_SRC_INLINE__': f.source['block-inline-text-comments'],
+                '__FN_PREFIX__': f['marker-prefix'],
+                '__FN_GEN_SECTION__': f['generate-footnotes-section'],
+                '__FN_SHOW_MARGIN__': f['show-in-margin-on-large-screens'],
+                
+                '__LINK_SITE__': config['auto-extracted-sections']['interlinked-content']['site-links-in-page'],
+                '__LINK_EXT__': config['auto-extracted-sections']['interlinked-content']['external-links-in-page'],
+                '__LINK_MEDIA__': config['auto-extracted-sections']['interlinked-content']['media-and-file-links-in-this-page'],
+                '__LINK_BACK__': config['auto-extracted-sections']['interlinked-content']['links-to-this-page'],
+
+                // Citations
+                '__CITE_ADD_SECTION__': cite["add-cite-this-post-section"],
+                '__CITE_ENABLED__': citeSet.enabled,
+                '__CITE_URLS_CONTENT__': bibString, // Injected content, brackets are in template
+                '__CITE_FORMAT_TEXT__': citeSet['in-text-citation-format'],
+                '__CITE_FMT_IEEE__': citeSet['bibliography-format']['simplified-ieee'],
+                '__CITE_FMT_APA__': citeSet['bibliography-format']['apa'],
+                '__CITE_GEN_SECTION__': citeSet['generate-bibliography-section'],
+                '__CITE_SHOW_MARGIN__': citeSet['show-in-margin-on-large-screens'],
+
+                // Comments Extras
+                '__BSKY_ENABLED__': c['bluesky-comments']['show-comments-from-bluesky'],
+                '__BSKY_AUTHOR__': c['bluesky-comments']['auto-search-for-match'].author,
+                '__BSKY_SEARCH__': c['bluesky-comments']['auto-search-for-match']['turn-on-auto-search'],
+                '__BSKY_EMOJI__': c['bluesky-comments']['auto-search-for-match']['echo-feed-emoji'],
+                '__WEBMENTION_LINK__': c.webmention['webmention-link'],
+                '__WEBMENTION_KEY__': c.webmention['webmention-api-key'],
+
+                // External
+                '__EXT_ENABLED__': config['external-content'].enabled,
+                '__EXT_SRC_MD__': config['external-content'].sources.markdown,
+                '__EXT_SRC_MDX__': config['external-content'].sources.mdx,
+                '__EXT_SRC_HTML__': config['external-content'].sources.html,
+                '__EXT_COMPONENTS__': config['external-content']['custom-components'],
+                
+                // Shortcodes
+                '__SC_HTML_RENDER__': config.shortcodes['html-render'],
+                '__SC_HTML_INJECT__': config.shortcodes['html-inject'],
+                '__SC_EXP_START__': config.shortcodes['expressive-code'].start,
+                '__SC_EXP_END__': config.shortcodes['expressive-code'].end,
+                '__SC_SHIKI__': config.shortcodes['shiki-transform'],
+                '__SC_MDX_INJECT__': config.shortcodes['mdx-inject'],
+                '__SC_TABLE__': config.shortcodes.table,
+
+                // Redirects
+                '__REDIRECTS_JSON__': JSON5.stringify(config.redirects, null, 4)
+            };
+
+            let output = rawTemplate;
+            for (const [key, value] of Object.entries(replacements)) {
+                output = output.replace(key, value);
+            }
+            document.getElementById('jsonPreview').textContent = output;
+            
+            // Trigger visual preview updates
+            renderThemePreview();
+            renderOGPreview();
+        }
+
+        function copyToClipboard() {
+            const text = document.getElementById('jsonPreview').textContent;
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';  // Prevent scrolling to bottom of page in MS Edge.
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                const btn = document.querySelector('button[onclick="copyToClipboard()"]');
+                const original = btn.textContent;
+                btn.textContent = "COPIED!";
+                setTimeout(() => btn.textContent = original, 2000);
+            } catch (err) {
+                console.error('Failed to copy text: ', err);
+            }
+            document.body.removeChild(textarea);
+        }
+
+        function downloadConfig() {
+            const text = document.getElementById('jsonPreview').textContent;
+            const blob = new Blob([text], { type: "application/json5" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = "constants-config.json5";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        window.onload = () => {
+            renderColorInputs();
+            renderSocialInputs();
+            renderRedirects();
+            renderPreview();
+            
+            // Initialize Theme Fonts
+            const sansInput = document.querySelector('input[data-path="theme.fontfamily-google-fonts.sans-font-name"]');
+            const monoInput = document.querySelector('input[data-path="theme.fontfamily-google-fonts.mono-font-name"]');
+            if(sansInput) updateFontPreview(sansInput, 'sans');
+            if(monoInput) updateFontPreview(monoInput, 'mono');
+
+            // Initialize OG Fonts
+            const ogTitleInput = document.querySelector('input[data-path="og-setup.title-font-name"]');
+            const ogFootnoteInput = document.querySelector('input[data-path="og-setup.footnote-font-name"]');
+            if(ogTitleInput) updateFontPreview(ogTitleInput, 'og-title');
+            if(ogFootnoteInput) updateFontPreview(ogFootnoteInput, 'og-footnote');
+            
+            // Initial OG Render
+            renderOGPreview();
+        };
+    </script>
+</body>
+</html>

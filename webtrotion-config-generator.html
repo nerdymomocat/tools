@@ -416,6 +416,11 @@
                             <input type="checkbox" data-path="block-rendering.optimize-images" class="w-5 h-5" onchange="updateConfig(this)" checked>
                             <span class="font-bold">Optimize Notion Images</span>
                         </div>
+                        <!-- NEW: Process to Markdown -->
+                         <div class="nb-checkbox-wrapper">
+                            <input type="checkbox" data-path="block-rendering.process-content-to-markdown" class="w-5 h-5" onchange="updateConfig(this)" checked>
+                            <span class="font-bold">Process Content to Markdown (LLM Ready)</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -584,6 +589,7 @@
 
     <script>
         // === Full Template with ALL sections Tokenized (JSON5) ===
+        // Preserves exact structure, comments, and spacing from the source.
         const rawTemplate = `// This file now supports JSON5 format - and has comments to document your configuration! Te configuration has changed significantly since earlier versions. Please review all settings.
 {
 	// === Notion Configuration ===
@@ -781,6 +787,8 @@
 		// If true, images from Notion will be optimized (converted to WebP, resized).
 		// Warning: This can significantly increase build time, especially for sites with many images, but will be very helpful for your site size (because there isn't multiple size image rendering).
 		"optimize-images": __BLK_OPTIMIZE__,
+		// If true, all pages/posts are converted to markdown format and saved alongside the HTML output for easy use with LLMs and other tools.
+		"process-content-to-markdown": __BLK_PROCESS_MD__,
 	},
 
 	// === Shortcodes ===
@@ -895,7 +903,7 @@
 	// If it matches a prefix, the build downloads and renders it as internal Markdown/MDX/HTML.
 	"external-content": {
 		// Toggle external content pulled from remote sources via Notion’s “External URL” field. Must be true to use features below.
-		enabled: true,
+		enabled: __EXT_ENABLED__,
 		// Remote folders containing external content files.
 		sources: {
 			// Each subfolder is treated as a markdown post. Supports media, styled using corresponding Notion blocks.
@@ -975,7 +983,7 @@
                 "title-font-name": "Kreon", "title-font-weight": 500,
                 "footnote-font-name": "JetBrains Mono", "footnote-font-weight": 700 
             },
-            "block-rendering": { "enable-lightbox": true, "full-width-social-embeds": false, "optimize-images": true },
+            "block-rendering": { "enable-lightbox": true, "full-width-social-embeds": false, "optimize-images": true, "process-content-to-markdown": true },
             shortcodes: {
                 "html-render": "<!DOCTYPE html> <!-- iframe -->",
                 "html-inject": "<!DOCTYPE html> <!-- inject -->",
@@ -1008,7 +1016,7 @@
                     }
                 }
             },
-            "external-content": { enabled: true, sources: { markdown: "", mdx: "", html: "" }, "custom-components": "" },
+            "external-content": { enabled: false, sources: { markdown: "", mdx: "", html: "" }, "custom-components": "" },
             redirects: {}
         };
 
@@ -1601,6 +1609,7 @@
                 '__BLK_LIGHTBOX__': config['block-rendering']['enable-lightbox'],
                 '__BLK_FULLWIDTH__': config['block-rendering']['full-width-social-embeds'],
                 '__BLK_OPTIMIZE__': config['block-rendering']['optimize-images'],
+                '__BLK_PROCESS_MD__': config['block-rendering']['process-content-to-markdown'],
                 
                 // Extracted & Footnotes
                 '__FN_SLUG__': config['auto-extracted-sections'].footnotes['sitewide-footnotes-page-slug'],

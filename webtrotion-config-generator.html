@@ -392,7 +392,7 @@
                                     onblur="handleFontBlur(this, 'mono')"></div>
                         </div>
                         <div class="nb-checkbox-wrapper">
-                            <input type="checkbox" data-path="theme.cover-overlay" class="w-5 h-5"
+                            <input type="checkbox" data-path="theme.cover-as-hero-background" class="w-5 h-5"
                                 onchange="updateConfig(this); renderThemePreview()" checked>
                             <span class="font-bold">Enable Cover Overlay</span>
                         </div>
@@ -958,6 +958,8 @@
 	// === Theme Customization ===
 	// Customize the look and feel of your site, including colors and fonts.
 	theme: {
+		// Currently only the classic theme is supported and available. Changing this changes nothing.
+		preset: "classic",
 		// Define your site's color palette.
 		// Colors MUST be in RGB format, with spaces between numbers (e.g., "255 255 255").
 		colors: {
@@ -1002,10 +1004,10 @@
 			// No need to escape spaces in font names!
 			"mono-font-name": "__FONT_MONO__",
 		},
-		// Enable overlay on hero cover images for better text readability.
+		// Enable using the cover image as the hero background (with an overlay for text readability).
 		// When enabled, displays a low-opacity tinted banner behind the title/date/tags area
 		// using the Cover image (only when a Cover image exists).
-		"cover-overlay": __COVER_OVERLAY__,
+		"cover-as-hero-background": __COVER_OVERLAY__,
 	},
 
 	// === Social Media Links ===
@@ -1268,7 +1270,8 @@
 	// Format: "/old-path": "/new-path"
 	// Example: "/my-old-post.html": "/posts/my-new-post-slug/"
 	redirects: __REDIRECTS_JSON__,
-}`;
+}
+`;
 
         // === Data State ===
         let config = {
@@ -1294,6 +1297,7 @@
                 "listing-view": "list",
             },
             theme: {
+                preset: "classic",
                 colors: {
                     bg: { light: "249 249 249", dark: "28 30 32" },
                     text: { light: "34 39 42", dark: "255 255 255" },
@@ -1303,7 +1307,7 @@
                     quote: { light: "203 41 65", dark: "205 254 183" },
                 },
                 "fontfamily-google-fonts": { "sans-font-name": "Roboto", "mono-font-name": "Roboto Mono" },
-                "cover-overlay": true,
+                "cover-as-hero-background": true,
             },
             socials: {
                 email: "mailto:your-email@example.com", github: "", googlescholar: "", semanticscholar: "",
@@ -1419,7 +1423,7 @@
             "collections-and-listings.listing-view": "Listing view style for post lists. List (traditional) or Gallery (card-based).",
             "theme.fontfamily-google-fonts.sans-font-name": "Main body/UI font - can be a sans-serif OR serif typeface (e.g., 'Roboto', 'Merriweather', 'Inter').",
             "theme.fontfamily-google-fonts.mono-font-name": "Monospace font for code blocks (e.g., 'Fira Code', 'JetBrains Mono').",
-            "theme.cover-overlay": "Enable overlay on hero cover images for better text readability.",
+            "theme.cover-as-hero-background": "Enable overlay on hero cover images for better text readability.",
             "tracking.google-analytics.use-ga": "Enable Google Analytics tracking.",
             "tracking.google-analytics.public-ga-tracking-id": "Your Google Analytics 4 Measurement ID (e.g., G-XXXXXXXXXX).",
             "tracking.umami.use-umami": "Enable Umami analytics tracking.",
@@ -1798,7 +1802,7 @@
             // --- Cover Overlay Rendering ---
             const overlayContainer = document.getElementById('preview-cover-overlay');
             if (overlayContainer) {
-                const enabled = config.theme['cover-overlay'];
+                const enabled = config.theme['cover-as-hero-background'];
                 const title = "The Future of Web Development";
                 const date = "Oct 24, 2025";
                 const tags = ["TECH", "WEB"];
@@ -2219,7 +2223,7 @@
 
                 '__FONT_SANS__': config.theme['fontfamily-google-fonts']['sans-font-name'],
                 '__FONT_MONO__': config.theme['fontfamily-google-fonts']['mono-font-name'],
-                '__COVER_OVERLAY__': config.theme['cover-overlay'],
+                '__COVER_OVERLAY__': config.theme['cover-as-hero-background'],
 
                 '__SOCIAL_EMAIL__': config.socials.email,
                 '__SOCIAL_GITHUB__': config.socials.github,
@@ -2331,7 +2335,7 @@
             for (const [key, value] of Object.entries(replacements)) {
                 output = output.replace(key, value);
             }
-            output += '\n';
+            // output += '\n';
             document.getElementById('jsonPreview').textContent = output;
 
             // Trigger visual preview updates

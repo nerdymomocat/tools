@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Notion CMS Config Generator</title>
     <script src="https://unpkg.com/json5@2/dist/index.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap"
+        rel="stylesheet">
     <style>
         /* Neo-Brutalist Theme Variables */
         :root {
@@ -35,13 +39,14 @@
             box-shadow: var(--shadow-offset) var(--shadow-offset) 0px black;
             transition: all 0.1s ease-in-out;
         }
-        
+
         .nb-box:hover {
             transform: translate(-1px, -1px);
             box-shadow: calc(var(--shadow-offset) + 2px) calc(var(--shadow-offset) + 2px) 0px black;
         }
 
-        .nb-input, .nb-select {
+        .nb-input,
+        .nb-select {
             border: var(--border-width) solid black;
             padding: 0.5rem;
             width: 100%;
@@ -50,7 +55,8 @@
             background: #fff;
         }
 
-        .nb-input:focus, .nb-select:focus {
+        .nb-input:focus,
+        .nb-select:focus {
             background-color: #f0f0f0;
             box-shadow: 2px 2px 0px black;
         }
@@ -72,7 +78,7 @@
             transform: translate(var(--shadow-offset), var(--shadow-offset));
             box-shadow: 0px 0px 0px black;
         }
-        
+
         .nb-button.secondary {
             background-color: white;
             color: black;
@@ -107,7 +113,7 @@
             padding: 1.5rem;
             display: none;
         }
-        
+
         .nb-section-content.active {
             display: block;
         }
@@ -119,11 +125,12 @@
             padding: 0.5rem;
             border: 2px solid transparent;
         }
+
         .nb-checkbox-wrapper:hover {
             background: #f0f0f0;
             border: 2px solid black;
         }
-        
+
         .subsection-title {
             font-weight: 800;
             font-size: 1.1rem;
@@ -132,25 +139,119 @@
             padding-bottom: 0.25rem;
         }
 
+        /* Cover Overlay Demo Styles */
+        .cover-overlay-container {
+            position: relative;
+            overflow: hidden;
+            border: 2px solid black;
+            /* Neo-brutalist shadow for the container */
+            box-shadow: 4px 4px 0px black;
+        }
+
+        .cover-overlay-bg {
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            z-index: 0;
+        }
+
+        .cover-overlay-tint {
+            position: absolute;
+            inset: 0;
+            background-color: rgba(255, 255, 255, 0.85);
+            /* Light mode tint */
+            z-index: 1;
+        }
+
+        /* Dark mode simulation for tint if needed, currently hardcoded for preview */
+        .cover-overlay-content {
+            position: relative;
+            z-index: 2;
+            padding: 1.5rem;
+        }
+
+        /* Tooltips */
+        .nb-tooltip-container {
+            position: relative;
+            display: inline-flex;
+            margin-left: 0.25rem;
+            cursor: help;
+        }
+
+        .nb-tooltip {
+            visibility: hidden;
+            background-color: black;
+            color: white;
+            text-align: left;
+            padding: 0.5rem;
+            border-radius: 0;
+            border: 2px solid white;
+            position: absolute;
+            z-index: 50;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: max-content;
+            max-width: 250px;
+            font-size: 0.75rem;
+            font-weight: 400;
+            text-transform: none;
+            box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transition: opacity 0.2s;
+            pointer-events: none;
+        }
+
+        .nb-tooltip-container:hover .nb-tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Arrow for tooltip */
+        .nb-tooltip::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: black transparent transparent transparent;
+        }
+
         /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 12px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; border-left: 3px solid black; }
-        ::-webkit-scrollbar-thumb { background: black; }
-        ::-webkit-scrollbar-thumb:hover { background: rgb(var(--accent-light)); }
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-left: 3px solid black;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: black;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgb(var(--accent-light));
+        }
     </style>
 </head>
+
 <body class="p-4 md:p-8 min-h-screen flex flex-col lg:flex-row gap-8">
 
     <!-- Left Panel: Form -->
     <div class="flex-1 flex flex-col gap-6 max-w-4xl mx-auto w-full">
-        
+
         <header class="nb-box p-6 bg-[#ffde59] mb-4">
             <h1 class="text-3xl md:text-5xl font-black uppercase mb-2">Webtrotion Config</h1>
             <p class="font-bold mono text-sm md:text-base">Complete configuration generator.</p>
         </header>
 
         <form id="configForm" class="flex flex-col gap-4">
-            
+
             <!-- 1. Notion -->
             <div class="nb-box">
                 <div class="nb-section-header" onclick="toggleSection('sec-notion')">
@@ -161,11 +262,13 @@
                     <div class="grid gap-4">
                         <div>
                             <label class="nb-label">Data Source ID (Preferred)</label>
-                            <input type="text" data-path="notion.data-source-id" class="nb-input" placeholder="f6e3813f-..." oninput="updateConfig(this)">
+                            <input type="text" data-path="notion.data-source-id" class="nb-input"
+                                placeholder="f6e3813f-..." oninput="updateConfig(this)">
                         </div>
                         <div>
                             <label class="nb-label">Database ID (Fallback)</label>
-                            <input type="text" data-path="notion.database-id" class="nb-input" placeholder="Classic DB ID" oninput="updateConfig(this)">
+                            <input type="text" data-path="notion.database-id" class="nb-input"
+                                placeholder="Classic DB ID" oninput="updateConfig(this)">
                         </div>
                     </div>
                 </div>
@@ -178,10 +281,36 @@
                     <span>▼</span>
                 </div>
                 <div id="sec-site" class="nb-section-content">
-                    <div class="grid md:grid-cols-2 gap-4">
-                        <div class="md:col-span-2"><label class="nb-label">Author</label><input type="text" data-path="site-info.author" class="nb-input" oninput="updateConfig(this)"></div>
-                        <div><label class="nb-label">Domain</label><input type="text" data-path="site-info.custom-domain" class="nb-input" placeholder="example.com" oninput="updateConfig(this)"></div>
-                        <div><label class="nb-label">Base Path</label><input type="text" data-path="site-info.base-path" class="nb-input" placeholder="/blog" oninput="updateConfig(this)"></div>
+                    <div class="grid md:grid-cols-2 gap-4 mb-6">
+                        <div class="md:col-span-2"><label class="nb-label">Author</label><input type="text"
+                                data-path="site-info.author" class="nb-input" oninput="updateConfig(this)"></div>
+                        <div><label class="nb-label">Domain</label><input type="text"
+                                data-path="site-info.custom-domain" class="nb-input" placeholder="example.com"
+                                oninput="updateConfig(this)"></div>
+                        <div><label class="nb-label">Base Path</label><input type="text" data-path="site-info.base-path"
+                                class="nb-input" placeholder="/blog" oninput="updateConfig(this)"></div>
+                        <div><label class="nb-label">Author URL</label><input type="text"
+                                data-path="site-info.site-author-url" class="nb-input" placeholder="Personal site URL"
+                                oninput="updateConfig(this)"></div>
+                        <div><label class="nb-label">Author Photo</label><input type="text"
+                                data-path="site-info.site-author-photo" class="nb-input" placeholder="Photo URL"
+                                oninput="updateConfig(this)"></div>
+                    </div>
+
+                    <h3 class="subsection-title">Multi-Author Support</h3>
+                    <div class="grid gap-4">
+                        <div class="flex flex-col gap-2">
+                            <div class="nb-checkbox-wrapper">
+                                <input type="checkbox" data-path="site-info.authors.enable-author-pages" class="w-5 h-5"
+                                    onchange="updateConfig(this)" checked>
+                                <span class="font-bold">Enable Author Pages (/authors/...)</span>
+                            </div>
+                            <div class="nb-checkbox-wrapper">
+                                <input type="checkbox" data-path="site-info.authors.only-when-custom-authors"
+                                    class="w-5 h-5" onchange="updateConfig(this)" checked>
+                                <span class="font-bold">Only Show When Custom Authors Present</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -195,19 +324,48 @@
                 <div id="sec-collections" class="nb-section-content">
                     <div class="grid gap-4">
                         <div class="grid grid-cols-2 gap-4">
-                            <div><label class="nb-label">Home Slug</label><input type="text" data-path="collections-and-listings.home-page-slug" class="nb-input" value="home" oninput="updateConfig(this)"></div>
-                            <div><label class="nb-label">Menu Collection</label><input type="text" data-path="collections-and-listings.menu-pages-collection" class="nb-input" value="main" oninput="updateConfig(this)"></div>
+                            <div><label class="nb-label">Home Slug</label><input type="text"
+                                    data-path="collections-and-listings.home-page-slug" class="nb-input" value="home"
+                                    oninput="updateConfig(this)"></div>
+                            <div><label class="nb-label">Menu Collection</label><input type="text"
+                                    data-path="collections-and-listings.menu-pages-collection" class="nb-input"
+                                    value="main" oninput="updateConfig(this)"></div>
                         </div>
                         <div class="nb-checkbox-wrapper">
-                            <input type="checkbox" data-path="collections-and-listings.recent-posts-on-home-page" class="w-5 h-5" onchange="updateConfig(this)" checked>
+                            <input type="checkbox" data-path="collections-and-listings.recent-posts-on-home-page"
+                                class="w-5 h-5" onchange="updateConfig(this)" checked>
                             <span class="font-bold">Show Recent Posts on Home</span>
                         </div>
                         <div class="nb-checkbox-wrapper">
-                            <input type="checkbox" data-path="collections-and-listings.hide-underscore-slugs-in-lists" class="w-5 h-5" onchange="updateConfig(this)" checked>
+                            <input type="checkbox" data-path="collections-and-listings.hide-underscore-slugs-in-lists"
+                                class="w-5 h-5" onchange="updateConfig(this)" checked>
                             <span class="font-bold">Hide Underscore Slugs</span>
                         </div>
-                        <div><label class="nb-label">Posts Per Page</label><input type="number" data-path="collections-and-listings.number-of-posts-per-page" class="nb-input" value="10" oninput="updateConfig(this)"></div>
-                        <div><label class="nb-label">Full Preview (Comma Sep)</label><input type="text" class="nb-input" value="Stream" oninput="updateArray(this, 'collections-and-listings.full-preview-collections')"></div>
+                        <div><label class="nb-label">Posts Per Page</label><input type="number"
+                                data-path="collections-and-listings.number-of-posts-per-page" class="nb-input"
+                                value="10" oninput="updateConfig(this)"></div>
+                        <div><label class="nb-label">Full Preview (Comma Sep)</label><input type="text" class="nb-input"
+                                value="Stream"
+                                oninput="updateArray(this, 'collections-and-listings.full-preview-collections')"></div>
+                        <div>
+                            <label class="nb-label">Listing View</label>
+                            <div class="flex gap-4">
+                                <div class="nb-checkbox-wrapper flex-1">
+                                    <input type="radio" name="listing-view" value="list"
+                                        data-path="collections-and-listings.listing-view" class="w-5 h-5 accent-black"
+                                        onchange="updateConfig(this); renderListingViewDemo()" checked>
+                                    <span class="font-bold">List (Default)</span>
+                                </div>
+                                <div class="nb-checkbox-wrapper flex-1">
+                                    <input type="radio" name="listing-view" value="gallery"
+                                        data-path="collections-and-listings.listing-view" class="w-5 h-5 accent-black"
+                                        onchange="updateConfig(this); renderListingViewDemo()">
+                                    <span class="font-bold">Gallery (Cards)</span>
+                                </div>
+                            </div>
+                            <!-- Visual Demo Container -->
+                            <div id="listing-view-demo" class="mt-3"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -220,29 +378,56 @@
                 </div>
                 <div id="sec-theme" class="nb-section-content">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6" id="colorContainer"></div>
-                    
-                    <!-- Typography Preview -->
-                    <div class="mb-6 border-2 border-black p-2 bg-gray-50">
-                        <button type="button" class="nb-button w-full text-sm mb-2" onclick="toggleThemePreview()">👁 Toggle Typography Preview</button>
-                        <div id="theme-preview-container" class="hidden border-2 border-black transition-all duration-300">
-                            <div class="flex justify-between items-center p-2 border-b-2 border-black bg-white text-black">
-                                <span class="text-xs font-bold uppercase">Preview</span>
-                                <button type="button" class="text-xs font-bold uppercase border border-black px-2 py-1 hover:bg-gray-200 transition-colors" onclick="togglePreviewMode(this)">Switch to Dark Mode</button>
-                            </div>
-                            <div id="preview-content" class="p-6 transition-colors duration-300">
-                                <h1 id="preview-h1" class="text-4xl font-bold mb-4 leading-tight">Heading Level 1</h1>
-                                <p class="mb-4 text-lg leading-relaxed">Sample text with <strong>bold</strong> and <em>italic</em> styles. <a href="#" id="preview-link" class="underline">Link example</a>.</p>
-                                <blockquote id="preview-quote" class="border-l-4 pl-4 py-1 mb-4 italic text-lg">"Design is how it works."</blockquote>
-                                <pre id="preview-code" class="p-3 rounded text-sm border border-current opacity-90">console.log("Code block");</pre>
-                            </div>
+
+                    <div class="border-t-2 border-black pt-4 mb-4">
+                        <label class="nb-label">Google Fonts</label>
+                        <div class="grid md:grid-cols-2 gap-4 mb-4">
+                            <div><span id="label-sans" class="text-sm font-bold block mb-2">Sans Font</span><input
+                                    type="text" data-path="theme.fontfamily-google-fonts.sans-font-name"
+                                    class="nb-input" value="Roboto" oninput="updateFontPreview(this, 'sans')"
+                                    onblur="handleFontBlur(this, 'sans')"></div>
+                            <div><span id="label-mono" class="text-sm font-bold block mb-2">Mono Font</span><input
+                                    type="text" data-path="theme.fontfamily-google-fonts.mono-font-name"
+                                    class="nb-input" value="Roboto Mono" oninput="updateFontPreview(this, 'mono')"
+                                    onblur="handleFontBlur(this, 'mono')"></div>
+                        </div>
+                        <div class="nb-checkbox-wrapper">
+                            <input type="checkbox" data-path="theme.cover-overlay" class="w-5 h-5"
+                                onchange="updateConfig(this); renderThemePreview()" checked>
+                            <span class="font-bold">Enable Cover Overlay</span>
                         </div>
                     </div>
 
-                    <div class="border-t-2 border-black pt-4">
-                        <label class="nb-label">Google Fonts</label>
-                        <div class="grid md:grid-cols-2 gap-4">
-                            <div><span id="label-sans" class="text-sm font-bold block mb-2">Sans Font</span><input type="text" data-path="theme.fontfamily-google-fonts.sans-font-name" class="nb-input" value="Roboto" oninput="updateFontPreview(this, 'sans')" onblur="handleFontBlur(this, 'sans')"></div>
-                            <div><span id="label-mono" class="text-sm font-bold block mb-2">Mono Font</span><input type="text" data-path="theme.fontfamily-google-fonts.mono-font-name" class="nb-input" value="Roboto Mono" oninput="updateFontPreview(this, 'mono')" onblur="handleFontBlur(this, 'mono')"></div>
+                    <!-- Theme Preview -->
+                    <div class="mb-6 border-2 border-black p-2 bg-gray-50">
+                        <button type="button" class="nb-button w-full text-sm mb-2" onclick="toggleThemePreview()">👁
+                            Toggle Theme Preview</button>
+                        <div id="theme-preview-container"
+                            class="hidden border-2 border-black transition-all duration-300">
+                            <div
+                                class="flex justify-between items-center p-2 border-b-2 border-black bg-white text-black">
+                                <span class="text-xs font-bold uppercase">Preview</span>
+                                <button type="button"
+                                    class="text-xs font-bold uppercase border border-black px-2 py-1 hover:bg-gray-200 transition-colors"
+                                    onclick="togglePreviewMode(this)">Switch to Dark Mode</button>
+                            </div>
+                            <!-- Combined Preview Content -->
+                            <div id="preview-content" class="transition-colors duration-300">
+                                <!-- Cover Overlay Section (injected via JS) -->
+                                <div id="preview-cover-overlay"></div>
+                                <!-- Typography Section -->
+                                <div class="p-6">
+                                    <h1 id="preview-h1" class="text-4xl font-bold mb-4 leading-tight">Heading Level 1
+                                    </h1>
+                                    <p class="mb-4 text-lg leading-relaxed">Sample text with <strong>bold</strong> and
+                                        <em>italic</em> styles. <a href="#" id="preview-link" class="underline">Link
+                                            example</a>.</p>
+                                    <blockquote id="preview-quote" class="border-l-4 pl-4 py-1 mb-4 italic text-lg">
+                                        "Design is how it works."</blockquote>
+                                    <pre id="preview-code"
+                                        class="p-3 rounded text-sm border border-current opacity-90">console.log("Code block");</pre>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -269,23 +454,31 @@
                     <div class="space-y-4">
                         <div class="p-3 border-2 border-black">
                             <div class="nb-checkbox-wrapper mb-2">
-                                <input type="checkbox" data-path="tracking.google-analytics.use-ga" class="w-5 h-5" onchange="updateConfig(this)" checked>
+                                <input type="checkbox" data-path="tracking.google-analytics.use-ga" class="w-5 h-5"
+                                    onchange="updateConfig(this)" checked>
                                 <span class="font-bold">Google Analytics</span>
                             </div>
-                            <input type="text" data-path="tracking.google-analytics.public-ga-tracking-id" class="nb-input" placeholder="G-XXXXXXXXXX" oninput="updateConfig(this)">
+                            <input type="text" data-path="tracking.google-analytics.public-ga-tracking-id"
+                                class="nb-input" placeholder="G-XXXXXXXXXX" oninput="updateConfig(this)">
                         </div>
                         <div class="p-3 border-2 border-black">
                             <div class="nb-checkbox-wrapper mb-2">
-                                <input type="checkbox" data-path="tracking.umami.use-umami" class="w-5 h-5" onchange="updateConfig(this)">
+                                <input type="checkbox" data-path="tracking.umami.use-umami" class="w-5 h-5"
+                                    onchange="updateConfig(this)">
                                 <span class="font-bold">Umami</span>
                             </div>
-                            <input type="text" data-path="tracking.umami.data-website-id" class="nb-input mb-2" placeholder="Website ID" oninput="updateConfig(this)">
+                            <input type="text" data-path="tracking.umami.data-website-id" class="nb-input mb-2"
+                                placeholder="Website ID" oninput="updateConfig(this)">
                             <div class="nb-checkbox-wrapper">
-                                <input type="checkbox" data-path="tracking.umami.self-hosted" class="w-4 h-4" onchange="updateConfig(this)"> <span>Self Hosted</span>
+                                <input type="checkbox" data-path="tracking.umami.self-hosted" class="w-4 h-4"
+                                    onchange="updateConfig(this)"> <span>Self Hosted</span>
                             </div>
-                            <input type="text" data-path="tracking.umami.self-hosted-umami-url" class="nb-input mt-2" placeholder="Script URL" oninput="updateConfig(this)">
+                            <input type="text" data-path="tracking.umami.self-hosted-umami-url" class="nb-input mt-2"
+                                placeholder="Script URL" oninput="updateConfig(this)">
                         </div>
-                         <div><label class="nb-label">Google Search Console Tag</label><input type="text" data-path="tracking.google-search-console-html-tag" class="nb-input" placeholder="content value only" oninput="updateConfig(this)"></div>
+                        <div><label class="nb-label">Google Search Console Tag</label><input type="text"
+                                data-path="tracking.google-search-console-html-tag" class="nb-input"
+                                placeholder="content value only" oninput="updateConfig(this)"></div>
                     </div>
                 </div>
             </div>
@@ -297,52 +490,63 @@
                     <span>▼</span>
                 </div>
                 <div id="sec-og" class="nb-section-content">
-                     <div class="grid md:grid-cols-2 gap-4 mb-6">
-                         <div>
-                             <label class="nb-label">Columns</label>
-                             <select data-path="og-setup.columns" class="nb-select" onchange="updateConfig(this); renderOGPreview();">
-                                 <option value="1">1 Column (Background Img)</option>
-                                 <option value="2">2 Columns (Side-by-Side)</option>
-                             </select>
-                         </div>
-                         <div class="flex items-end">
-                             <div class="nb-checkbox-wrapper w-full">
-                                <input type="checkbox" data-path="og-setup.excerpt" class="w-5 h-5" onchange="updateConfig(this); renderOGPreview();">
+                    <div class="grid md:grid-cols-2 gap-4 mb-6">
+                        <div>
+                            <label class="nb-label">Columns</label>
+                            <select data-path="og-setup.columns" class="nb-select"
+                                onchange="updateConfig(this); renderOGPreview();">
+                                <option value="1">1 Column (Background Img)</option>
+                                <option value="2">2 Columns (Side-by-Side)</option>
+                            </select>
+                        </div>
+                        <div class="flex items-end">
+                            <div class="nb-checkbox-wrapper w-full">
+                                <input type="checkbox" data-path="og-setup.excerpt" class="w-5 h-5"
+                                    onchange="updateConfig(this); renderOGPreview();">
                                 <span class="font-bold">Include Excerpt</span>
-                             </div>
-                         </div>
-                         <div>
+                            </div>
+                        </div>
+                        <div>
                             <span id="label-og-title" class="text-sm font-bold block mb-2">Title Font</span>
                             <div class="flex gap-2">
-                                <input type="text" data-path="og-setup.title-font-name" class="nb-input w-2/3" value="Kreon" oninput="updateFontPreview(this, 'og-title')" onblur="handleFontBlur(this, 'og-title')">
-                                <input type="number" data-path="og-setup.title-font-weight" class="nb-input w-1/3" value="500" placeholder="Wgt" oninput="updateConfig(this)">
+                                <input type="text" data-path="og-setup.title-font-name" class="nb-input w-2/3"
+                                    value="Kreon" oninput="updateFontPreview(this, 'og-title')"
+                                    onblur="handleFontBlur(this, 'og-title')">
+                                <input type="number" data-path="og-setup.title-font-weight" class="nb-input w-1/3"
+                                    value="500" placeholder="Wgt" oninput="updateConfig(this)">
                             </div>
-                         </div>
-                         <div>
+                        </div>
+                        <div>
                             <span id="label-og-footnote" class="text-sm font-bold block mb-2">Footnote Font</span>
-                             <div class="flex gap-2">
-                                <input type="text" data-path="og-setup.footnote-font-name" class="nb-input w-2/3" value="JetBrains Mono" oninput="updateFontPreview(this, 'og-footnote')" onblur="handleFontBlur(this, 'og-footnote')">
-                                <input type="number" data-path="og-setup.footnote-font-weight" class="nb-input w-1/3" value="700" placeholder="Wgt" oninput="updateConfig(this)">
-                             </div>
-                         </div>
-                     </div>
+                            <div class="flex gap-2">
+                                <input type="text" data-path="og-setup.footnote-font-name" class="nb-input w-2/3"
+                                    value="JetBrains Mono" oninput="updateFontPreview(this, 'og-footnote')"
+                                    onblur="handleFontBlur(this, 'og-footnote')">
+                                <input type="number" data-path="og-setup.footnote-font-weight" class="nb-input w-1/3"
+                                    value="700" placeholder="Wgt" oninput="updateConfig(this)">
+                            </div>
+                        </div>
+                    </div>
 
-                     <!-- OG Preview Area -->
-                     <div class="border-2 border-black bg-gray-100 p-4">
+                    <!-- OG Preview Area -->
+                    <div class="border-2 border-black bg-gray-100 p-4">
                         <div class="flex justify-between items-center mb-2">
                             <h4 class="font-bold uppercase text-sm">Open Graph Preview (1200x630)</h4>
                             <div class="flex gap-2">
                                 <div class="nb-checkbox-wrapper py-0 bg-white border border-black h-8">
-                                    <input type="checkbox" id="og-simulate-image" class="w-4 h-4" onchange="renderOGPreview()" checked>
+                                    <input type="checkbox" id="og-simulate-image" class="w-4 h-4"
+                                        onchange="renderOGPreview()" checked>
                                     <span class="text-xs font-bold">Simulate Image</span>
                                 </div>
-                                <button type="button" class="nb-button text-xs py-1" onclick="randomizeOGContent()">🎲 Randomize</button>
+                                <button type="button" class="nb-button text-xs py-1" onclick="randomizeOGContent()">🎲
+                                    Randomize</button>
                             </div>
                         </div>
-                        <div class="w-full overflow-hidden border border-gray-300 shadow-lg bg-white relative" style="aspect-ratio: 1200/630;">
+                        <div class="w-full overflow-hidden border border-gray-300 shadow-lg bg-white relative"
+                            style="aspect-ratio: 1200/630;">
                             <div id="og-canvas" class="w-full h-full relative"></div>
                         </div>
-                     </div>
+                    </div>
                 </div>
             </div>
 
@@ -356,42 +560,57 @@
                     <h3 class="subsection-title">Giscus</h3>
                     <div class="grid gap-2 mb-6">
                         <div class="grid grid-cols-2 gap-2">
-                            <input type="text" data-path="comments.giscus.data-repo" class="nb-input" placeholder="user/repo" oninput="updateConfig(this)">
-                            <input type="text" data-path="comments.giscus.data-repo-id" class="nb-input" placeholder="Repo ID" oninput="updateConfig(this)">
+                            <input type="text" data-path="comments.giscus.data-repo" class="nb-input"
+                                placeholder="user/repo" oninput="updateConfig(this)">
+                            <input type="text" data-path="comments.giscus.data-repo-id" class="nb-input"
+                                placeholder="Repo ID" oninput="updateConfig(this)">
                         </div>
                         <div class="grid grid-cols-2 gap-2">
-                            <input type="text" data-path="comments.giscus.data-category" class="nb-input" placeholder="Category" oninput="updateConfig(this)">
-                            <input type="text" data-path="comments.giscus.data-category-id" class="nb-input" placeholder="Category ID" oninput="updateConfig(this)">
+                            <input type="text" data-path="comments.giscus.data-category" class="nb-input"
+                                placeholder="Category" oninput="updateConfig(this)">
+                            <input type="text" data-path="comments.giscus.data-category-id" class="nb-input"
+                                placeholder="Category ID" oninput="updateConfig(this)">
                         </div>
-                         <div class="grid grid-cols-2 gap-2">
-                            <input type="text" data-path="comments.giscus.data-mapping" class="nb-input" value="pathname" placeholder="Mapping (e.g. pathname)" oninput="updateConfig(this)">
-                            <input type="text" data-path="comments.giscus.data-input-position" class="nb-input" value="top" placeholder="Position (top/bottom)" oninput="updateConfig(this)">
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="text" data-path="comments.giscus.data-mapping" class="nb-input"
+                                value="pathname" placeholder="Mapping (e.g. pathname)" oninput="updateConfig(this)">
+                            <input type="text" data-path="comments.giscus.data-input-position" class="nb-input"
+                                value="top" placeholder="Position (top/bottom)" oninput="updateConfig(this)">
                         </div>
-                         <div class="nb-checkbox-wrapper">
-                            <input type="checkbox" data-path="comments.giscus.data-reactions-enabled" class="w-5 h-5" onchange="updateConfig(this)" checked>
+                        <div class="nb-checkbox-wrapper">
+                            <input type="checkbox" data-path="comments.giscus.data-reactions-enabled" class="w-5 h-5"
+                                onchange="updateConfig(this)" checked>
                             <span class="font-bold">Enable Reactions</span>
                         </div>
                     </div>
-                    
+
                     <h3 class="subsection-title">Other Services</h3>
-                     <div class="p-3 border-2 border-black mb-2">
+                    <div class="p-3 border-2 border-black mb-2">
                         <div class="nb-checkbox-wrapper mb-2">
-                            <input type="checkbox" data-path="comments.bluesky-comments.show-comments-from-bluesky" class="w-5 h-5" onchange="updateConfig(this)">
+                            <input type="checkbox" data-path="comments.bluesky-comments.show-comments-from-bluesky"
+                                class="w-5 h-5" onchange="updateConfig(this)">
                             <span class="font-bold">Bluesky Comments</span>
                         </div>
                         <div class="grid gap-2">
-                             <input type="text" data-path="comments.bluesky-comments.auto-search-for-match.author" class="nb-input" placeholder="Bluesky Handle" oninput="updateConfig(this)">
-                             <input type="text" data-path="comments.bluesky-comments.auto-search-for-match.echo-feed-emoji" class="nb-input" placeholder="Echo Emoji" oninput="updateConfig(this)">
-                             <div class="nb-checkbox-wrapper">
-                                <input type="checkbox" data-path="comments.bluesky-comments.auto-search-for-match.turn-on-auto-search" class="w-5 h-5" onchange="updateConfig(this)">
+                            <input type="text" data-path="comments.bluesky-comments.auto-search-for-match.author"
+                                class="nb-input" placeholder="Bluesky Handle" oninput="updateConfig(this)">
+                            <input type="text"
+                                data-path="comments.bluesky-comments.auto-search-for-match.echo-feed-emoji"
+                                class="nb-input" placeholder="Echo Emoji" oninput="updateConfig(this)">
+                            <div class="nb-checkbox-wrapper">
+                                <input type="checkbox"
+                                    data-path="comments.bluesky-comments.auto-search-for-match.turn-on-auto-search"
+                                    class="w-5 h-5" onchange="updateConfig(this)">
                                 <span class="font-bold">Auto Search</span>
                             </div>
                         </div>
                     </div>
-                     <div class="p-3 border-2 border-black">
+                    <div class="p-3 border-2 border-black">
                         <label class="nb-label">Webmention</label>
-                         <input type="text" data-path="comments.webmention.webmention-link" class="nb-input mb-2" placeholder="https://webmention.io/..." oninput="updateConfig(this)">
-                         <input type="text" data-path="comments.webmention.webmention-api-key" class="nb-input" placeholder="API Key" oninput="updateConfig(this)">
+                        <input type="text" data-path="comments.webmention.webmention-link" class="nb-input mb-2"
+                            placeholder="https://webmention.io/..." oninput="updateConfig(this)">
+                        <input type="text" data-path="comments.webmention.webmention-api-key" class="nb-input"
+                            placeholder="API Key" oninput="updateConfig(this)">
                     </div>
                 </div>
             </div>
@@ -405,20 +624,24 @@
                 <div id="sec-blocks" class="nb-section-content">
                     <div class="space-y-2">
                         <div class="nb-checkbox-wrapper">
-                            <input type="checkbox" data-path="block-rendering.enable-lightbox" class="w-5 h-5" onchange="updateConfig(this)" checked>
+                            <input type="checkbox" data-path="block-rendering.enable-lightbox" class="w-5 h-5"
+                                onchange="updateConfig(this)" checked>
                             <span class="font-bold">Enable Lightbox for Images</span>
                         </div>
                         <div class="nb-checkbox-wrapper">
-                            <input type="checkbox" data-path="block-rendering.full-width-social-embeds" class="w-5 h-5" onchange="updateConfig(this)">
+                            <input type="checkbox" data-path="block-rendering.full-width-social-embeds" class="w-5 h-5"
+                                onchange="updateConfig(this)">
                             <span class="font-bold">Full Width Social Embeds</span>
                         </div>
-                         <div class="nb-checkbox-wrapper">
-                            <input type="checkbox" data-path="block-rendering.optimize-images" class="w-5 h-5" onchange="updateConfig(this)" checked>
+                        <div class="nb-checkbox-wrapper">
+                            <input type="checkbox" data-path="block-rendering.optimize-images" class="w-5 h-5"
+                                onchange="updateConfig(this)" checked>
                             <span class="font-bold">Optimize Notion Images</span>
                         </div>
                         <!-- NEW: Process to Markdown -->
-                         <div class="nb-checkbox-wrapper">
-                            <input type="checkbox" data-path="block-rendering.process-content-to-markdown" class="w-5 h-5" onchange="updateConfig(this)" checked>
+                        <div class="nb-checkbox-wrapper">
+                            <input type="checkbox" data-path="block-rendering.process-content-to-markdown"
+                                class="w-5 h-5" onchange="updateConfig(this)" checked>
                             <span class="font-bold">Process Content to Markdown (LLM Ready)</span>
                         </div>
                     </div>
@@ -433,22 +656,51 @@
                 </div>
                 <div id="sec-shortcodes" class="nb-section-content">
                     <div class="grid gap-3">
-                         <div class="grid grid-cols-2 gap-2">
-                            <div><label class="nb-label">HTML Render</label><input type="text" data-path="shortcodes.html-render" class="nb-input" oninput="updateConfig(this)"></div>
-                            <div><label class="nb-label">HTML Inject</label><input type="text" data-path="shortcodes.html-inject" class="nb-input" oninput="updateConfig(this)"></div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div><label class="nb-label">HTML Render</label><input type="text"
+                                    data-path="shortcodes.html-render" class="nb-input" oninput="updateConfig(this)">
+                            </div>
+                            <div><label class="nb-label">HTML Inject</label><input type="text"
+                                    data-path="shortcodes.html-inject" class="nb-input" oninput="updateConfig(this)">
+                            </div>
                         </div>
-                        <div><label class="nb-label">Shiki Transform</label><input type="text" data-path="shortcodes.shiki-transform" class="nb-input" oninput="updateConfig(this)"></div>
-                        <div><label class="nb-label">MDX Inject</label><input type="text" data-path="shortcodes.mdx-inject" class="nb-input" oninput="updateConfig(this)"></div>
-                        <div><label class="nb-label">Table Marker</label><input type="text" data-path="shortcodes.table" class="nb-input" oninput="updateConfig(this)"></div>
-                         <div class="grid grid-cols-2 gap-2">
-                            <div><label class="nb-label">Expressive Start</label><input type="text" data-path="shortcodes.expressive-code.start" class="nb-input" oninput="updateConfig(this)"></div>
-                            <div><label class="nb-label">Expressive End</label><input type="text" data-path="shortcodes.expressive-code.end" class="nb-input" oninput="updateConfig(this)"></div>
+                        <div><label class="nb-label">Shiki Transform</label><input type="text"
+                                data-path="shortcodes.shiki-transform" class="nb-input" oninput="updateConfig(this)">
+                        </div>
+                        <div><label class="nb-label">MDX Inject</label><input type="text"
+                                data-path="shortcodes.mdx-inject" class="nb-input" oninput="updateConfig(this)"></div>
+                        <div><label class="nb-label">Table Marker</label><input type="text" data-path="shortcodes.table"
+                                class="nb-input" oninput="updateConfig(this)"></div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div><label class="nb-label">Expressive Start</label><input type="text"
+                                    data-path="shortcodes.expressive-code.start" class="nb-input"
+                                    oninput="updateConfig(this)"></div>
+                            <div><label class="nb-label">Expressive End</label><input type="text"
+                                    data-path="shortcodes.expressive-code.end" class="nb-input"
+                                    oninput="updateConfig(this)"></div>
+                        </div>
+                        <h4 class="font-bold mt-4 mb-2 border-b-2 border-black">Author Metadata</h4>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div><label class="nb-label">Auth URL Start</label><input type="text"
+                                    data-path="shortcodes.author-desc.author-url.start" class="nb-input"
+                                    oninput="updateConfig(this)"></div>
+                            <div><label class="nb-label">Auth URL End</label><input type="text"
+                                    data-path="shortcodes.author-desc.author-url.end" class="nb-input"
+                                    oninput="updateConfig(this)"></div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div><label class="nb-label">Auth Photo Start</label><input type="text"
+                                    data-path="shortcodes.author-desc.author-photo-url.start" class="nb-input"
+                                    oninput="updateConfig(this)"></div>
+                            <div><label class="nb-label">Auth Photo End</label><input type="text"
+                                    data-path="shortcodes.author-desc.author-photo-url.end" class="nb-input"
+                                    oninput="updateConfig(this)"></div>
                         </div>
                     </div>
                 </div>
             </div>
 
-             <!-- 11. Auto Extracted (Footnotes etc) -->
+            <!-- 11. Auto Extracted (Footnotes etc) -->
             <div class="nb-box">
                 <div class="nb-section-header" onclick="toggleSection('sec-extracted')">
                     <span class="font-bold">11. Auto-Extracted Sections</span>
@@ -459,31 +711,51 @@
                     <div class="grid gap-3 mb-6">
                         <div>
                             <label class="nb-label">Sitewide Page Slug</label>
-                            <input type="text" data-path="auto-extracted-sections.footnotes.sitewide-footnotes-page-slug" class="nb-input" value="_all-footnotes" oninput="updateConfig(this)">
+                            <input type="text"
+                                data-path="auto-extracted-sections.footnotes.sitewide-footnotes-page-slug"
+                                class="nb-input" value="_all-footnotes" oninput="updateConfig(this)">
                         </div>
-                        
+
                         <div class="p-3 border-2 border-black">
                             <label class="nb-label mb-2">In-Page Footnotes Source</label>
                             <div class="nb-checkbox-wrapper mb-1">
-                                <input type="checkbox" data-path="auto-extracted-sections.footnotes.in-page-footnotes-settings.enabled" class="w-5 h-5" onchange="updateConfig(this)" checked>
+                                <input type="checkbox"
+                                    data-path="auto-extracted-sections.footnotes.in-page-footnotes-settings.enabled"
+                                    class="w-5 h-5" onchange="updateConfig(this)" checked>
                                 <span class="font-bold">Enabled</span>
                             </div>
                             <div class="pl-4 space-y-1 border-l-2 border-gray-300 ml-2 mb-4">
-                                <div class="nb-checkbox-wrapper"><input type="radio" name="fn-source" value="end-of-block" class="w-4 h-4 accent-black" onchange="updateFootnoteSource(this)" checked> End of Block</div>
-                                <div class="nb-checkbox-wrapper"><input type="radio" name="fn-source" value="inline-latex-footnote-command" class="w-4 h-4 accent-black" onchange="updateFootnoteSource(this)"> LaTeX Command</div>
-                                <div class="nb-checkbox-wrapper"><input type="radio" name="fn-source" value="start-of-child-blocks" class="w-4 h-4 accent-black" onchange="updateFootnoteSource(this)"> Child Blocks</div>
-                                <div class="nb-checkbox-wrapper"><input type="radio" name="fn-source" value="block-comments" class="w-4 h-4 accent-black" onchange="updateFootnoteSource(this)"> Notion Comments</div>
-                                <div class="nb-checkbox-wrapper"><input type="radio" name="fn-source" value="block-inline-text-comments" class="w-4 h-4 accent-black" onchange="updateFootnoteSource(this)"> Inline Text Comments</div>
+                                <div class="nb-checkbox-wrapper"><input type="radio" name="fn-source"
+                                        value="end-of-block" class="w-4 h-4 accent-black"
+                                        onchange="updateFootnoteSource(this)" checked> End of Block</div>
+                                <div class="nb-checkbox-wrapper"><input type="radio" name="fn-source"
+                                        value="inline-latex-footnote-command" class="w-4 h-4 accent-black"
+                                        onchange="updateFootnoteSource(this)"> LaTeX Command</div>
+                                <div class="nb-checkbox-wrapper"><input type="radio" name="fn-source"
+                                        value="start-of-child-blocks" class="w-4 h-4 accent-black"
+                                        onchange="updateFootnoteSource(this)"> Child Blocks</div>
+                                <div class="nb-checkbox-wrapper"><input type="radio" name="fn-source"
+                                        value="block-comments" class="w-4 h-4 accent-black"
+                                        onchange="updateFootnoteSource(this)"> Notion Comments</div>
+                                <div class="nb-checkbox-wrapper"><input type="radio" name="fn-source"
+                                        value="block-inline-text-comments" class="w-4 h-4 accent-black"
+                                        onchange="updateFootnoteSource(this)"> Inline Text Comments</div>
                             </div>
-                            
+
                             <div class="grid grid-cols-2 gap-4">
-                                <div><label class="nb-label">Marker Prefix</label><input type="text" data-path="auto-extracted-sections.footnotes.in-page-footnotes-settings.marker-prefix" class="nb-input" value="ft_" oninput="updateConfig(this)"></div>
+                                <div><label class="nb-label">Marker Prefix</label><input type="text"
+                                        data-path="auto-extracted-sections.footnotes.in-page-footnotes-settings.marker-prefix"
+                                        class="nb-input" value="ft_" oninput="updateConfig(this)"></div>
                                 <div class="flex flex-col justify-end gap-2">
-                                     <div class="nb-checkbox-wrapper">
-                                        <input type="checkbox" data-path="auto-extracted-sections.footnotes.in-page-footnotes-settings.generate-footnotes-section" class="w-4 h-4" onchange="updateConfig(this)" checked> Generate Section
+                                    <div class="nb-checkbox-wrapper">
+                                        <input type="checkbox"
+                                            data-path="auto-extracted-sections.footnotes.in-page-footnotes-settings.generate-footnotes-section"
+                                            class="w-4 h-4" onchange="updateConfig(this)" checked> Generate Section
                                     </div>
-                                     <div class="nb-checkbox-wrapper">
-                                        <input type="checkbox" data-path="auto-extracted-sections.footnotes.in-page-footnotes-settings.show-in-margin-on-large-screens" class="w-4 h-4" onchange="updateConfig(this)" checked> Show in Margin
+                                    <div class="nb-checkbox-wrapper">
+                                        <input type="checkbox"
+                                            data-path="auto-extracted-sections.footnotes.in-page-footnotes-settings.show-in-margin-on-large-screens"
+                                            class="w-4 h-4" onchange="updateConfig(this)" checked> Show in Margin
                                     </div>
                                 </div>
                             </div>
@@ -491,44 +763,62 @@
                     </div>
 
                     <h3 class="subsection-title">Interlinked Content</h3>
-                     <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-6">
-                        <div class="nb-checkbox-wrapper"><input type="checkbox" data-path="auto-extracted-sections.interlinked-content.site-links-in-page" class="w-5 h-5" onchange="updateConfig(this)" checked> Internal Links</div>
-                        <div class="nb-checkbox-wrapper"><input type="checkbox" data-path="auto-extracted-sections.interlinked-content.external-links-in-page" class="w-5 h-5" onchange="updateConfig(this)" checked> External Links</div>
-                         <div class="nb-checkbox-wrapper"><input type="checkbox" data-path="auto-extracted-sections.interlinked-content.media-and-file-links-in-this-page" class="w-5 h-5" onchange="updateConfig(this)" checked> Media Links</div>
-                         <div class="nb-checkbox-wrapper"><input type="checkbox" data-path="auto-extracted-sections.interlinked-content.links-to-this-page" class="w-5 h-5" onchange="updateConfig(this)" checked> Backlinks</div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-6">
+                        <div class="nb-checkbox-wrapper"><input type="checkbox"
+                                data-path="auto-extracted-sections.interlinked-content.site-links-in-page"
+                                class="w-5 h-5" onchange="updateConfig(this)" checked> Internal Links</div>
+                        <div class="nb-checkbox-wrapper"><input type="checkbox"
+                                data-path="auto-extracted-sections.interlinked-content.external-links-in-page"
+                                class="w-5 h-5" onchange="updateConfig(this)" checked> External Links</div>
+                        <div class="nb-checkbox-wrapper"><input type="checkbox"
+                                data-path="auto-extracted-sections.interlinked-content.media-and-file-links-in-this-page"
+                                class="w-5 h-5" onchange="updateConfig(this)" checked> Media Links</div>
+                        <div class="nb-checkbox-wrapper"><input type="checkbox"
+                                data-path="auto-extracted-sections.interlinked-content.links-to-this-page"
+                                class="w-5 h-5" onchange="updateConfig(this)" checked> Backlinks</div>
                     </div>
 
                     <h3 class="subsection-title">Citations</h3>
                     <div class="nb-checkbox-wrapper mb-4">
-                        <input type="checkbox" data-path="auto-extracted-sections.citations.add-cite-this-post-section" class="w-5 h-5" onchange="updateConfig(this)">
+                        <input type="checkbox" data-path="auto-extracted-sections.citations.add-cite-this-post-section"
+                            class="w-5 h-5" onchange="updateConfig(this)">
                         <span class="font-bold">Add "Cite This Post" Section</span>
                     </div>
                     <div class="border-2 border-black p-3">
                         <h4 class="font-bold uppercase mb-2">BibTeX Processing</h4>
                         <div class="nb-checkbox-wrapper mb-2">
-                            <input type="checkbox" data-path="auto-extracted-sections.citations.extract-and-process-bibtex-citations.enabled" class="w-5 h-5" onchange="updateConfig(this)">
+                            <input type="checkbox"
+                                data-path="auto-extracted-sections.citations.extract-and-process-bibtex-citations.enabled"
+                                class="w-5 h-5" onchange="updateConfig(this)">
                             <span>Enabled</span>
                         </div>
-                         <div>
+                        <div>
                             <label class="nb-label">BibTeX File URLs (Comma Sep)</label>
-                            <input type="text" class="nb-input mb-2" oninput="updateArray(this, 'auto-extracted-sections.citations.extract-and-process-bibtex-citations.bibtex-file-url-list')">
+                            <input type="text" class="nb-input mb-2"
+                                oninput="updateArray(this, 'auto-extracted-sections.citations.extract-and-process-bibtex-citations.bibtex-file-url-list')">
                         </div>
                         <div class="grid grid-cols-2 gap-4 mb-2">
-                             <div><label class="nb-label">In-Text Format</label><input type="text" data-path="auto-extracted-sections.citations.extract-and-process-bibtex-citations.in-text-citation-format" class="nb-input" value="[@key]" oninput="updateConfig(this)"></div>
-                             <div>
-                                 <label class="nb-label">Bib Format</label>
-                                 <select class="nb-select" onchange="updateBibFormat(this)">
-                                     <option value="simplified-ieee">Simplified IEEE</option>
-                                     <option value="apa">APA</option>
-                                 </select>
-                             </div>
+                            <div><label class="nb-label">In-Text Format</label><input type="text"
+                                    data-path="auto-extracted-sections.citations.extract-and-process-bibtex-citations.in-text-citation-format"
+                                    class="nb-input" value="[@key]" oninput="updateConfig(this)"></div>
+                            <div>
+                                <label class="nb-label">Bib Format</label>
+                                <select class="nb-select" onchange="updateBibFormat(this)">
+                                    <option value="simplified-ieee">Simplified IEEE</option>
+                                    <option value="apa">APA</option>
+                                </select>
+                            </div>
                         </div>
                         <div class="flex flex-col gap-2">
-                             <div class="nb-checkbox-wrapper">
-                                <input type="checkbox" data-path="auto-extracted-sections.citations.extract-and-process-bibtex-citations.generate-bibliography-section" class="w-4 h-4" onchange="updateConfig(this)"> Generate Bibliography
+                            <div class="nb-checkbox-wrapper">
+                                <input type="checkbox"
+                                    data-path="auto-extracted-sections.citations.extract-and-process-bibtex-citations.generate-bibliography-section"
+                                    class="w-4 h-4" onchange="updateConfig(this)"> Generate Bibliography
                             </div>
-                             <div class="nb-checkbox-wrapper">
-                                <input type="checkbox" data-path="auto-extracted-sections.citations.extract-and-process-bibtex-citations.show-in-margin-on-large-screens" class="w-4 h-4" onchange="updateConfig(this)"> Show in Margin
+                            <div class="nb-checkbox-wrapper">
+                                <input type="checkbox"
+                                    data-path="auto-extracted-sections.citations.extract-and-process-bibtex-citations.show-in-margin-on-large-screens"
+                                    class="w-4 h-4" onchange="updateConfig(this)"> Show in Margin
                             </div>
                         </div>
                     </div>
@@ -543,31 +833,44 @@
                 </div>
                 <div id="sec-external" class="nb-section-content">
                     <div class="nb-checkbox-wrapper mb-4">
-                        <input type="checkbox" data-path="external-content.enabled" class="w-5 h-5" onchange="updateConfig(this)" checked>
+                        <input type="checkbox" data-path="external-content.enabled" class="w-5 h-5"
+                            onchange="updateConfig(this)" checked>
                         <span class="font-bold">Enable External Content</span>
                     </div>
                     <div class="space-y-3">
-                        <div><label class="nb-label">Markdown Source URL</label><input type="text" data-path="external-content.sources.markdown" class="nb-input" oninput="updateConfig(this)"></div>
-                        <div><label class="nb-label">MDX Source URL</label><input type="text" data-path="external-content.sources.mdx" class="nb-input" oninput="updateConfig(this)"></div>
-                        <div><label class="nb-label">HTML Source URL</label><input type="text" data-path="external-content.sources.html" class="nb-input" oninput="updateConfig(this)"></div>
-                        <div><label class="nb-label">Custom Components Path</label><input type="text" data-path="external-content.custom-components" class="nb-input" oninput="updateConfig(this)"></div>
+                        <div><label class="nb-label">Markdown Source URL</label><input type="text"
+                                data-path="external-content.sources.markdown" class="nb-input"
+                                oninput="updateConfig(this)"></div>
+                        <div><label class="nb-label">MDX Source URL</label><input type="text"
+                                data-path="external-content.sources.mdx" class="nb-input" oninput="updateConfig(this)">
+                        </div>
+                        <div><label class="nb-label">HTML Source URL</label><input type="text"
+                                data-path="external-content.sources.html" class="nb-input" oninput="updateConfig(this)">
+                        </div>
+                        <div><label class="nb-label">Custom Components Path</label><input type="text"
+                                data-path="external-content.custom-components" class="nb-input"
+                                oninput="updateConfig(this)"></div>
                     </div>
                 </div>
             </div>
 
             <!-- 13. Redirects -->
-             <div class="nb-box">
+            <div class="nb-box">
                 <div class="nb-section-header" onclick="toggleSection('sec-redirects')">
                     <span class="font-bold">13. Redirects</span>
                     <span>▼</span>
                 </div>
                 <div id="sec-redirects" class="nb-section-content">
                     <div id="redirectsContainer" class="space-y-2 mb-4"></div>
-                    <button type="button" class="nb-button secondary text-sm" onclick="addRedirectRow()">+ Add Redirect</button>
+                    <button type="button" class="nb-button secondary text-sm" onclick="addRedirectRow()">+ Add
+                        Redirect</button>
                 </div>
             </div>
 
-            <div class="text-center text-sm font-bold opacity-50 pb-8">Designed for Webtrotion</div>
+            <div class="text-center text-sm font-bold opacity-50 pb-8">Designed for <a
+                    href="https://nerdymomocat.github.io/posts/introducing-webtrotion/" target="_blank"
+                    class="underline hover:text-black transition-colors"
+                    title="Introducing Webtrotion • Nerdy Momo Cat">Webtrotion</a></div>
         </form>
     </div>
 
@@ -576,10 +879,12 @@
         <div class="nb-box h-full flex flex-col bg-[#1e1e1e] text-white">
             <div class="p-4 border-b-2 border-white flex justify-between items-center bg-black">
                 <h2 class="font-bold uppercase text-white">Output Preview</h2>
-                <button onclick="copyToClipboard()" class="bg-[rgb(var(--accent-light))] text-white px-3 py-1 text-xs font-bold border border-white hover:bg-white hover:text-black transition-colors">COPY</button>
+                <button onclick="copyToClipboard()"
+                    class="bg-[rgb(var(--accent-light))] text-white px-3 py-1 text-xs font-bold border border-white hover:bg-white hover:text-black transition-colors">COPY</button>
             </div>
             <div class="flex-1 overflow-auto p-4 relative group">
-                <pre id="jsonPreview" class="mono text-xs md:text-sm text-green-400 break-all whitespace-pre-wrap"></pre>
+                <pre id="jsonPreview"
+                    class="mono text-xs md:text-sm text-green-400 break-all whitespace-pre-wrap"></pre>
             </div>
             <div class="p-4 border-t-2 border-white bg-black">
                 <button onclick="downloadConfig()" class="nb-button w-full text-center block">Download .json5</button>
@@ -610,6 +915,23 @@
 		"custom-domain": "__SITE_DOMAIN__",
 		// The sub-directory your site is deployed in (e.g., "/blog"). Leave empty if your site is at the root of your domain. Must start with a forward slash "/" if used.
 		"base-path": "__SITE_BASE_PATH__",
+		// If the Authors property doesn't exist in your Notion database, all settings from now on below in this key are ignored.
+		// Personal URL for the site's author (from "author" field above). Only applies when an author's name matches the site author.
+		// Leave blank to link to author page (if enabled) or show as plain text.
+		"site-author-url": "__SITE_AUTHOR_URL__",
+		// Avatar/photo URL for the site's author (from "author" field above). Only applies when an author's name matches the site author.
+		// Leave blank for no avatar.
+		"site-author-photo": "__SITE_AUTHOR_PHOTO__",
+		// === Multi-Author Support ===
+		// Configure author handling for posts with a multi-select Authors property in Notion.
+		// When a post's Authors property is empty, the site's author (above) is used as fallback.
+		authors: {
+			// If true, builds /authors/ index and /authors/[author]/ pages. Set to false to disable author pages entirely.
+			"enable-author-pages": __ENABLE_AUTHOR_PAGES__,
+			// If true, only show bylines and build author pages when at least one post has a non-default author.
+			// When all posts use the default author, bylines and author pages are suppressed.
+			"only-when-custom-authors": __ONLY_CUSTOM_AUTHORS__,
+		},
 	},
 
 	// === Collections & Post Listings ===
@@ -627,6 +949,10 @@
 		"full-preview-collections": __FULL_PREVIEW_ARRAY__,
 		// If true, any post with a slug starting with an underscore (e.g., "_draft-post") will be hidden from all lists (home page, collections, tags), from sitemap and search. The page will still be built and accessible via its direct URL.
 		"hide-underscore-slugs-in-lists": __HIDE_UNDERSCORE_BOOL__,
+		// Listing view style for post lists.
+		// "list" (default): Traditional vertical list with title, date, excerpt, and tags.
+		// "gallery": Card-based grid layout with FeaturedImage thumbnails.
+		"listing-view": "__LISTING_VIEW__",
 	},
 
 	// === Theme Customization ===
@@ -676,6 +1002,10 @@
 			// No need to escape spaces in font names!
 			"mono-font-name": "__FONT_MONO__",
 		},
+		// Enable overlay on hero cover images for better text readability.
+		// When enabled, displays a low-opacity tinted banner behind the title/date/tags area
+		// using the Cover image (only when a Cover image exists).
+		"cover-overlay": __COVER_OVERLAY__,
 	},
 
 	// === Social Media Links ===
@@ -809,6 +1139,18 @@
 		"mdx-inject": "__SC_MDX_INJECT__",
 		// In a Notion table's first cell, this marker enables datatable features (sorting, filtering).
 		table: "__SC_TABLE__",
+		// Author metadata shortcodes - used in author multi-select description field to specify URL and photo.
+		// Format in description: <<author-url>>https://example.com<<author-url>> <<author-photo-url>>https://example.com/photo.jpg<<author-photo-url>> Remaining text is the bio.
+		"author-desc": {
+			"author-url": {
+				start: "__SC_AUTHOR_URL_START__",
+				end: "__SC_AUTHOR_URL_END__",
+			},
+			"author-photo-url": {
+				start: "__SC_AUTHOR_PHOTO_START__",
+				end: "__SC_AUTHOR_PHOTO_END__",
+			},
+		},
 	},
 
 	// === Auto-Extracted Sections ===
@@ -931,7 +1273,17 @@
         // === Data State ===
         let config = {
             notion: { "data-source-id": "f6e3813f-eb93-4a77-bbf4-81ad653d63ba", "database-id": "" },
-            "site-info": { author: "", "custom-domain": "", "base-path": "" },
+            "site-info": {
+                author: "",
+                "custom-domain": "",
+                "base-path": "",
+                "site-author-url": "",
+                "site-author-photo": "",
+                authors: {
+                    "enable-author-pages": true,
+                    "only-when-custom-authors": true
+                }
+            },
             "collections-and-listings": {
                 "home-page-slug": "home",
                 "recent-posts-on-home-page": true,
@@ -939,6 +1291,7 @@
                 "menu-pages-collection": "main",
                 "full-preview-collections": ["Stream"],
                 "hide-underscore-slugs-in-lists": true,
+                "listing-view": "list",
             },
             theme: {
                 colors: {
@@ -950,6 +1303,7 @@
                     quote: { light: "203 41 65", dark: "205 254 183" },
                 },
                 "fontfamily-google-fonts": { "sans-font-name": "Roboto", "mono-font-name": "Roboto Mono" },
+                "cover-overlay": true,
             },
             socials: {
                 email: "mailto:your-email@example.com", github: "", googlescholar: "", semanticscholar: "",
@@ -972,16 +1326,16 @@
                     "data-input-position": "top",
                     "data-reactions-enabled": true
                 },
-                "bluesky-comments": { 
-                    "show-comments-from-bluesky": false, 
-                    "auto-search-for-match": { "turn-on-auto-search": false, author: "", "echo-feed-emoji": "" } 
+                "bluesky-comments": {
+                    "show-comments-from-bluesky": false,
+                    "auto-search-for-match": { "turn-on-auto-search": false, author: "", "echo-feed-emoji": "" }
                 },
                 webmention: { "webmention-link": "", "webmention-api-key": "" }
             },
-            "og-setup": { 
-                columns: 1, excerpt: false, 
+            "og-setup": {
+                columns: 1, excerpt: false,
                 "title-font-name": "Kreon", "title-font-weight": 500,
-                "footnote-font-name": "JetBrains Mono", "footnote-font-weight": 700 
+                "footnote-font-name": "JetBrains Mono", "footnote-font-weight": 700
             },
             "block-rendering": { "enable-lightbox": true, "full-width-social-embeds": false, "optimize-images": true, "process-content-to-markdown": true },
             shortcodes: {
@@ -991,9 +1345,13 @@
                 "shiki-transform": "<<shiki-transform>>",
                 "mdx-inject": "<!-- mdx inject -->",
                 table: "<<🗂️>>",
+                "author-desc": {
+                    "author-url": { start: "<<author-url>>", end: "<<author-url>>" },
+                    "author-photo-url": { start: "<<author-photo-url>>", end: "<<author-photo-url>>" },
+                },
             },
             "auto-extracted-sections": {
-                footnotes: { 
+                footnotes: {
                     "sitewide-footnotes-page-slug": "_all-footnotes",
                     "in-page-footnotes-settings": {
                         enabled: true,
@@ -1020,18 +1378,173 @@
             redirects: {}
         };
 
+        // === Icons ===
+        const textIconMap = {
+            "email": "mdi:email",
+            "github": "mdi:github",
+            "googlescholar": "simple-icons:googlescholar",
+            "dblp": "simple-icons:dblp",
+            "semanticscholar": "simple-icons:semanticscholar",
+            "substack": "simple-icons:substack",
+            "facebook": "mdi:facebook",
+            "twitter": "mdi:twitter",
+            "threads": "simple-icons:threads",
+            "instagram": "mdi:instagram",
+            "mastodon": "mdi:mastodon",
+            "bluesky": "simple-icons:bluesky",
+            "calendar": "mdi:calendar-cursor",
+            "kofi": "simple-icons:kofi",
+            "buy-me-a-coffee": "simple-icons:buymeacoffee",
+            "this-github-repo": "mdi:github-face",
+            "info": "mdi:information-slab-circle-outline"
+        };
+
+        // === Tooltips Help Text ===
+        const configHelp = {
+            "notion.data-source-id": "(Preferred) The Data Source ID for your Notion integration. This is a more stable way to connect to your database.",
+            "notion.database-id": "(Fallback) The classic Database ID. This is used only if 'data-source-id' is empty.",
+            "site-info.author": "Your name or the name of your site's author. Used in RSS feeds, OG images etc and other metadata for attribution.",
+            "site-info.custom-domain": "Your custom domain name (e.g., 'example.com'). Important: Do NOT include 'https://' or a trailing slash.",
+            "site-info.base-path": "The sub-directory your site is deployed in (e.g., '/blog'). Leave empty if your site is at the root of your domain.",
+            "site-info.site-author-url": "Personal URL for the site's author. Leave blank to link to author page (if enabled) or show as plain text.",
+            "site-info.site-author-photo": "Avatar/photo URL for the site's author. Leave blank for no avatar.",
+            "site-info.authors.enable-author-pages": "If true, builds /authors/ index and /authors/[author]/ pages.",
+            "site-info.authors.only-when-custom-authors": "If true, only show bylines and build author pages when at least one post has a non-default author.",
+            "collections-and-listings.home-page-slug": "The slug of the Notion page you want to use as your website's home page.",
+            "collections-and-listings.recent-posts-on-home-page": "If true, a section with the 5 most recent posts will be displayed on the home page.",
+            "collections-and-listings.number-of-posts-per-page": "The number of posts to show on each page of a paginated list.",
+            "collections-and-listings.menu-pages-collection": "The name of the Notion 'Collection' property value for pages that should appear in the main navigation menu.",
+            "collections-and-listings.full-preview-collections": "An array of 'Collection' names where posts should be displayed in full on list pages.",
+            "collections-and-listings.hide-underscore-slugs-in-lists": "If true, any post with a slug starting with an underscore will be hidden from all lists.",
+            "collections-and-listings.listing-view": "Listing view style for post lists. List (traditional) or Gallery (card-based).",
+            "theme.fontfamily-google-fonts.sans-font-name": "Main body/UI font - can be a sans-serif OR serif typeface (e.g., 'Roboto', 'Merriweather', 'Inter').",
+            "theme.fontfamily-google-fonts.mono-font-name": "Monospace font for code blocks (e.g., 'Fira Code', 'JetBrains Mono').",
+            "theme.cover-overlay": "Enable overlay on hero cover images for better text readability.",
+            "tracking.google-analytics.use-ga": "Enable Google Analytics tracking.",
+            "tracking.google-analytics.public-ga-tracking-id": "Your Google Analytics 4 Measurement ID (e.g., G-XXXXXXXXXX).",
+            "tracking.umami.use-umami": "Enable Umami analytics tracking.",
+            "tracking.umami.data-website-id": "The website ID from your Umami dashboard.",
+            "tracking.umami.self-hosted": "Set to true if you are hosting your own Umami instance.",
+            "tracking.umami.self-hosted-umami-url": "The URL to your self-hosted Umami script (e.g., 'https://my-umami.com/script.js').",
+            "tracking.google-search-console-html-tag": "For verifying site ownership with Google. Paste the 'content' attribute from the meta tag.",
+            "og-setup.columns": "Layout style: 1 for a single column with a background image, 2 for a side-by-side layout.",
+            "og-setup.excerpt": "If true, the post's excerpt will be included in the OG image.",
+            "og-setup.title-font-name": "Font family name for the OG image title.",
+            "og-setup.title-font-weight": "Font weight for the OG image title (e.g., 700).",
+            "og-setup.footnote-font-name": "Font family name for the OG image footnote/metadata.",
+            "og-setup.footnote-font-weight": "Font weight for the OG image footnote (e.g., 400).",
+            "comments.giscus.data-reactions-enabled": "Enable emoji reactions for Giscus comments.",
+            "comments.giscus.data-repo": "user/repo",
+            "comments.giscus.data-repo-id": "Repo ID from Giscus setup.",
+            "comments.giscus.data-category": "Discussion Category name.",
+            "comments.giscus.data-category-id": "Discussion Category ID.",
+            "comments.bluesky-comments.show-comments-from-bluesky": "Display comments from Bluesky posts related to your blog posts.",
+            "comments.bluesky-comments.auto-search-for-match.turn-on-auto-search": "If true, site automatically searches for a Bluesky post by author with link + emoji.",
+            "comments.bluesky-comments.auto-search-for-match.author": "Your Bluesky handle (e.g., 'yourname.bsky.social').",
+            "comments.bluesky-comments.auto-search-for-match.echo-feed-emoji": "The emoji used in your Bluesky post to signify it's a blog post 'echo'.",
+            "comments.webmention.webmention-api-key": "Your API key from your webmention service.",
+            "comments.webmention.webmention-link": "Your personal webmention endpoint URL.",
+            "block-rendering.enable-lightbox": "If true, clicking on an image will open it in a full-screen lightbox/modal view.",
+            "block-rendering.full-width-social-embeds": "If true, embedded content like tweets will span the full width of the content area on smaller screens.",
+            "block-rendering.optimize-images": "If true, images from Notion will be optimized (converted to WebP, resized).",
+            "block-rendering.process-content-to-markdown": "If true, all pages/posts are converted to markdown format and saved alongside HTML.",
+            "shortcodes.html-render": "Start text for rendering content as HTML inside an iframe.",
+            "shortcodes.html-inject": "Start text for injecting content directly as raw HTML.",
+            "shortcodes.expressive-code.start": "Start marker for expressive code blocks.",
+            "shortcodes.expressive-code.end": "End marker for expressive code blocks.",
+            "shortcodes.shiki-transform": "Triggers advanced syntax highlighting features via Shiki transformers.",
+            "shortcodes.mdx-inject": "Start text for treating markdown code block as MDX.",
+            "shortcodes.table": "Marker in a Notion table's first cell to enable datatable features.",
+            "shortcodes.author-desc.author-url.start": "Start marker for author URL in description.",
+            "shortcodes.author-desc.author-url.end": "End marker for author URL in description.",
+            "shortcodes.author-desc.author-photo-url.start": "Start marker for author photo URL in description.",
+            "shortcodes.author-desc.author-photo-url.end": "End marker for author photo URL in description.",
+            "auto-extracted-sections.footnotes.sitewide-footnotes-page-slug": "The slug for a single page containing all footnotes (legacy).",
+            "auto-extracted-sections.footnotes.in-page-footnotes-settings.enabled": "Enable modern, automatic in-page footnotes.",
+            "auto-extracted-sections.footnotes.in-page-footnotes-settings.marker-prefix": "The prefix for footnote markers in your Notion text (e.g., 'ft_').",
+            "auto-extracted-sections.footnotes.in-page-footnotes-settings.generate-footnotes-section": "If true, a collated list of all footnotes will be generated at the bottom.",
+            "auto-extracted-sections.footnotes.in-page-footnotes-settings.show-in-margin-on-large-screens": "Displays footnotes in the margin on large screens.",
+            "auto-extracted-sections.interlinked-content.site-links-in-page": "Displays list of links to other site pages mentioned in the current page.",
+            "auto-extracted-sections.interlinked-content.external-links-in-page": "Displays list of external websites linked from the current page.",
+            "auto-extracted-sections.interlinked-content.media-and-file-links-in-this-page": "Displays list of embedded media files.",
+            "auto-extracted-sections.interlinked-content.links-to-this-page": "Displays list of 'backlinks' - other pages linking to this one.",
+            "auto-extracted-sections.citations.add-cite-this-post-section": "If true, a 'Cite this page' section will be added.",
+            "auto-extracted-sections.citations.extract-and-process-bibtex-citations.enabled": "If true, enables BibTeX citation processing.",
+            "auto-extracted-sections.citations.extract-and-process-bibtex-citations.bibtex-file-url-list": "List of .bib file URLs.",
+            "auto-extracted-sections.citations.extract-and-process-bibtex-citations.in-text-citation-format": "Pattern for in-text citations (e.g., [@key]).",
+            "auto-extracted-sections.citations.extract-and-process-bibtex-citations.generate-bibliography-section": "If true, a bibliography section is generated.",
+            "auto-extracted-sections.citations.extract-and-process-bibtex-citations.show-in-margin-on-large-screens": "Show citations in the margin on large screens.",
+            "external-content.enabled": "Toggle external content pulled from remote sources.",
+            "external-content.sources.markdown": "Remote folder URL for markdown posts.",
+            "external-content.sources.mdx": "Remote folder URL for MDX posts.",
+            "external-content.sources.html": "Remote folder URL for HTML posts.",
+            "external-content.custom-components": "Remote component folder URL."
+        };
+
+        function getValueFromPath(obj, path) {
+            return path.split('.').reduce((acc, part) => acc && acc[part], obj);
+        }
+
+        function populateFormValues() {
+            document.querySelectorAll('input[data-path], select[data-path]').forEach(input => {
+                const path = input.dataset.path;
+                const value = getValueFromPath(config, path);
+
+                if (value !== undefined) {
+                    if (input.type === 'checkbox') {
+                        input.checked = value;
+                    } else if (input.type === 'radio') {
+                        if (input.value === String(value)) {
+                            input.checked = true;
+                        }
+                    } else {
+                        input.value = value;
+                    }
+                }
+            });
+        }
+
+        function renderTooltips() {
+            document.querySelectorAll('[data-path]').forEach(input => {
+                const path = input.dataset.path;
+                if (!configHelp[path]) return;
+
+                // Find label: typically previous element sibling with class nb-label, or parent's label
+                let label = null;
+                if (input.previousElementSibling && input.previousElementSibling.classList.contains('nb-label')) {
+                    label = input.previousElementSibling;
+                } else if (input.parentElement && input.parentElement.querySelector('.nb-label')) {
+                    label = input.parentElement.querySelector('.nb-label');
+                } else if (input.parentElement && input.parentElement.previousElementSibling && input.parentElement.previousElementSibling.classList.contains('nb-label')) {
+                    // Case for grouped inputs like fonts
+                    label = input.parentElement.previousElementSibling;
+                }
+
+                if (label && !label.querySelector('.nb-tooltip-container')) {
+                    const helpText = configHelp[path];
+                    const tooltipContainer = document.createElement('span');
+                    tooltipContainer.className = "nb-tooltip-container";
+                    tooltipContainer.innerHTML = `
+                        <iconify-icon icon="${textIconMap['info']}" class="text-gray-500 hover:text-black" width="16" height="16"></iconify-icon>
+                        <span class="nb-tooltip">${helpText}</span>
+                    `;
+                    label.appendChild(tooltipContainer);
+                }
+            });
+        }
+
         // === Helper Functions ===
 
         function set(obj, path, value) {
             var schema = obj;
             var pList = path.split('.');
             var len = pList.length;
-            for(var i = 0; i < len-1; i++) {
+            for (var i = 0; i < len - 1; i++) {
                 var elem = pList[i];
-                if( !schema[elem] ) schema[elem] = {}
+                if (!schema[elem]) schema[elem] = {}
                 schema = schema[elem];
             }
-            schema[pList[len-1]] = value;
+            schema[pList[len - 1]] = value;
         }
 
         function rgbToHex(r, g, b) {
@@ -1057,7 +1570,7 @@
 
         function configRgbToHex(str) {
             const parts = str.split(' ');
-            if(parts.length !== 3) return '#000000';
+            if (parts.length !== 3) return '#000000';
             return rgbToHex(parts[0], parts[1], parts[2]);
         }
 
@@ -1107,27 +1620,47 @@
 
         function renderSocialInputs() {
             const container = document.getElementById('socialsContainer');
-            const keys = Object.keys(config.socials);
-            container.innerHTML = keys.map(key => `
+            const socialsData = [
+                { key: "email", icon: "M12 15c.81 0 1.5-.3 2.11-.89c.59-.61.89-1.3.89-2.11s-.3-1.5-.89-2.11C13.5 9.3 12.81 9 12 9s-1.5.3-2.11.89C9.3 10.5 9 11.19 9 12s.3 1.5.89 2.11c.61.59 1.3.89 2.11.89m0-13c2.75 0 5.1 1 7.05 2.95S22 9.25 22 12v1.45c0 1-.35 1.85-1 2.55c-.7.67-1.5 1-2.5 1c-1.2 0-2.19-.5-2.94-1.5c-1 1-2.18 1.5-3.56 1.5c-1.37 0-2.55-.5-3.54-1.46C7.5 14.55 7 13.38 7 12c0-1.37.5-2.55 1.46-3.54C9.45 7.5 10.63 7 12 7c1.38 0 2.55.5 3.54 1.46C16.5 9.45 17 10.63 17 12v1.45c0 .41.16.77.46 1.08s.65.47 1.04.47c.42 0 .77-.16 1.07-.47s.43-.67.43-1.08V12c0-2.19-.77-4.07-2.35-5.65S14.19 4 12 4s-4.07.77-5.65 2.35S4 9.81 4 12s.77 4.07 2.35 5.65S9.81 20 12 20h5v2h-5c-2.75 0-5.1-1-7.05-2.95S2 14.75 2 12s1-5.1 2.95-7.05S9.25 2 12 2" },
+                { key: "github", icon: "M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5c.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34c-.46-1.16-1.11-1.47-1.11-1.47c-.91-.62.07-.6.07-.6c1 .07 1.53 1.03 1.53 1.03c.87 1.52 2.34 1.07 2.91.83c.09-.65.35-1.09.63-1.34c-2.22-.25-4.55-1.11-4.55-4.92c0-1.11.38-2 1.03-2.71c-.1-.25-.45-1.29.1-2.64c0 0 .84-.27 2.75 1.02c.79-.22 1.65-.33 2.5-.33s1.71.11 2.5.33c1.91-1.29 2.75-1.02 2.75-1.02c.55 1.35.2 2.39.1 2.64c.65.71 1.03 1.6 1.03 2.71c0 3.82-2.34 4.66-4.57 4.91c.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2" },
+                { key: "googlescholar", icon: "M5.242 13.769L0 9.5L12 0l12 9.5l-5.242 4.269C17.548 11.249 14.978 9.5 12 9.5c-2.977 0-5.548 1.748-6.758 4.269M12 10a7 7 0 1 0 0 14a7 7 0 0 0 0-14" },
+                { key: "semanticscholar", icon: "M24 8.609c-.848.536-1.436.83-2.146 1.245c-4.152 2.509-8.15 5.295-11.247 8.981l-1.488 1.817l-4.568-7.268c1.021.814 3.564 3.098 4.603 3.599l3.356-2.526c2.336-1.644 8.946-5.226 11.49-5.848M8.046 15.201c.346.277.692.537.969.744c.761-3.668.121-7.613-1.886-11.039c3.374-.052 6.731-.087 10.105-.139a14.8 14.8 0 0 1 1.298 5.295c.294-.156.588-.294.883-.433c-.104-1.868-.641-3.91-1.662-6.263c-4.602-.018-9.188-.018-13.79-.018c2.993 3.547 4.36 7.839 4.083 11.853m-.623-.484c.087.086.191.155.277.225c-.138-3.409-1.419-6.887-3.824-9.881H1.73c3.098 2.855 4.984 6.299 5.693 9.656m-.744-.658c.104.087.208.173.329.277c-.9-2.526-2.492-5.018-4.741-7.198H0c2.89 2.076 5.122 4.481 6.679 6.921" },
+                { key: "dblp", icon: "M3.075.002c-.096.013-.154.092-.094.31L4.97 7.73L3.1 8.6s-.56.26-.4.85l2.45 9.159s.16.59.72.33l6.169-2.869l1.3-.61s.52-.24.42-.79l-.01-.06l-1.13-4.22l-.658-2.45l-.672-2.49v-.04s-.16-.59-.84-1L3.5.141s-.265-.16-.425-.139M18.324 5.03a.7.7 0 0 0-.193.06l-5.602 2.6l.862 3.2l1.09 4.08l.01.06c.05.47-.411.79-.411.79l-1.88.87l.5 1.89l.04.1c.07.17.28.6.81.91l6.95 4.269s.68.41.52-.17l-1.981-7.4l1.861-.86s.56-.26.4-.85L18.85 5.42s-.116-.452-.526-.39" },
+                { key: "substack", icon: "M22.539 8.242H1.46V5.406h21.08zM1.46 10.812V24L12 18.11L22.54 24V10.812zM22.54 0H1.46v2.836h21.08z" },
+                { key: "facebook", icon: "M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95" },
+                { key: "twitter", icon: "M22.46 6c-.77.35-1.6.58-2.46.69c.88-.53 1.56-1.37 1.88-2.38c-.83.5-1.75.85-2.72 1.05C18.37 4.5 17.26 4 16 4c-2.35 0-4.27 1.92-4.27 4.29c0 .34.04.67.11.98C8.28 9.09 5.11 7.38 3 4.79c-.37.63-.58 1.37-.58 2.15c0 1.49.75 2.81 1.91 3.56c-.71 0-1.37-.2-1.95-.5v.03c0 2.08 1.48 3.82 3.44 4.21a4.2 4.2 0 0 1-1.93.07a4.28 4.28 0 0 0 4 2.98a8.52 8.52 0 0 1-5.33 1.84q-.51 0-1.02-.06C3.44 20.29 5.7 21 8.12 21C16 21 20.33 14.46 20.33 8.79c0-.19 0-.37-.01-.56c.84-.6 1.56-1.36 2.14-2.23" },
+                { key: "threads", icon: "M12.186 24h-.007c-3.581-.024-6.334-1.205-8.184-3.509C2.35 18.44 1.5 15.586 1.472 12.01v-.017c.03-3.579.879-6.43 2.525-8.482C5.845 1.205 8.6.024 12.18 0h.014c2.746.02 5.043.725 6.826 2.098c1.677 1.29 2.858 3.13 3.509 5.467l-2.04.569c-1.104-3.96-3.898-5.984-8.304-6.015c-2.91.022-5.11.936-6.54 2.717C4.307 6.504 3.616 8.914 3.589 12c.027 3.086.718 5.496 2.057 7.164c1.43 1.783 3.631 2.698 6.54 2.717c2.623-.02 4.358-.631 5.8-2.045c1.647-1.613 1.618-3.593 1.09-4.798c-.31-.71-.873-1.3-1.634-1.75c-.192 1.352-.622 2.446-1.284 3.272c-.886 1.102-2.14 1.704-3.73 1.79c-1.202.065-2.361-.218-3.259-.801c-1.063-.689-1.685-1.74-1.752-2.964c-.065-1.19.408-2.285 1.33-3.082c.88-.76 2.119-1.207 3.583-1.291a14 14 0 0 1 3.02.142c-.126-.742-.375-1.332-.75-1.757c-.513-.586-1.308-.883-2.359-.89h-.029c-.844 0-1.992.232-2.721 1.32l-1.757-1.18c.98-1.454 2.568-2.256 4.478-2.256h.044c3.194.02 5.097 1.975 5.287 5.388q.163.07.321.142c1.49.7 2.58 1.761 3.154 3.07c.797 1.82.871 4.79-1.548 7.158c-1.85 1.81-4.094 2.628-7.277 2.65Zm1.003-11.69q-.362 0-.739.021c-1.836.103-2.98.946-2.916 2.143c.067 1.256 1.452 1.839 2.784 1.767c1.224-.065 2.818-.543 3.086-3.71a10.5 10.5 0 0 0-2.215-.221" },
+                { key: "instagram", icon: "M13.028 2c1.125.003 1.696.009 2.189.023l.194.007c.224.008.445.018.712.03c1.064.05 1.79.218 2.427.465c.66.254 1.216.598 1.772 1.153a4.9 4.9 0 0 1 1.153 1.772c.247.637.415 1.363.465 2.428c.012.266.022.487.03.712l.006.194c.015.492.021 1.063.023 2.188l.001.746v1.31a79 79 0 0 1-.023 2.188l-.006.194c-.008.225-.018.446-.03.712c-.05 1.065-.22 1.79-.466 2.428a4.9 4.9 0 0 1-1.153 1.772a4.9 4.9 0 0 1-1.772 1.153c-.637.247-1.363.415-2.427.465l-.712.03l-.194.006c-.493.014-1.064.021-2.189.023l-.746.001h-1.309a78 78 0 0 1-2.189-.023l-.194-.006a63 63 0 0 1-.712-.031c-1.064-.05-1.79-.218-2.428-.465a4.9 4.9 0 0 1-1.771-1.153a4.9 4.9 0 0 1-1.154-1.772c-.247-.637-.415-1.363-.465-2.428l-.03-.712l-.005-.194A79 79 0 0 1 2 13.028v-2.056a79 79 0 0 1 .022-2.188l.007-.194c.008-.225.018-.446.03-.712c.05-1.065.218-1.79.465-2.428A4.9 4.9 0 0 1 3.68 3.678a4.9 4.9 0 0 1 1.77-1.153c.638-.247 1.363-.415 2.428-.465c.266-.012.488-.022.712-.03l.194-.006a79 79 0 0 1 2.188-.023zM12 7a5 5 0 1 0 0 10a5 5 0 0 0 0-10m0 2a3 3 0 1 1 .001 6a3 3 0 0 1 0-6m5.25-3.5a1.25 1.25 0 0 0 0 2.5a1.25 1.25 0 0 0 0-2.5" },
+                { key: "mastodon", icon: "M20.94 14c-.28 1.41-2.44 2.96-4.97 3.26c-1.31.15-2.6.3-3.97.24c-2.25-.11-4-.54-4-.54v.62c.32 2.22 2.22 2.35 4.03 2.42c1.82.05 3.44-.46 3.44-.46l.08 1.65s-1.28.68-3.55.81c-1.25.07-2.81-.03-4.62-.5c-3.92-1.05-4.6-5.24-4.7-9.5l-.01-3.43c0-4.34 2.83-5.61 2.83-5.61C6.95 2.3 9.41 2 11.97 2h.06c2.56 0 5.02.3 6.47.96c0 0 2.83 1.27 2.83 5.61c0 0 .04 3.21-.39 5.43M18 8.91c0-1.08-.3-1.91-.85-2.56c-.56-.63-1.3-.96-2.23-.96c-1.06 0-1.87.41-2.42 1.23l-.5.88l-.5-.88c-.56-.82-1.36-1.23-2.43-1.23c-.92 0-1.66.33-2.23.96C6.29 7 6 7.83 6 8.91v5.26h2.1V9.06c0-1.06.45-1.62 1.36-1.62c1 0 1.5.65 1.5 1.93v2.79h2.07V9.37c0-1.28.5-1.93 1.51-1.93c.9 0 1.35.56 1.35 1.62v5.11H18z" },
+                { key: "bluesky", icon: "M12 10.8c-1.087-2.114-4.046-6.053-6.798-7.995C2.566.944 1.561 1.266.902 1.565C.139 1.908 0 3.08 0 3.768c0 .69.378 5.65.624 6.479c.815 2.736 3.713 3.66 6.383 3.364q.204-.03.415-.056q-.207.033-.415.056c-3.912.58-7.387 2.005-2.83 7.078c5.013 5.19 6.87-1.113 7.823-4.308c.953 3.195 2.05 9.271 7.733 4.308c4.267-4.308 1.172-6.498-2.74-7.078a9 9 0 0 1-.415-.056q.21.026.415.056c2.67.297 5.568-.628 6.383-3.364c.246-.828.624-5.79.624-6.478c0-.69-.139-1.861-.902-2.206c-.659-.298-1.664-.62-4.3 1.24C16.046 4.748 13.087 8.687 12 10.8" },
+                { key: "calendar", icon: "M22.86 17.74c-.09.11-.21.17-.33.2l-1.87.36l1.29 2.84c.16.29.02.65-.28.79l-2.14 1.01c-.09.06-.17.06-.26.06c-.22 0-.43-.12-.53-.34l-1.29-2.83l-1.49 1.21a.593.593 0 0 1-.96-.47V11.6c0-.33.26-.6.59-.6c.15 0 .29.05.41.13l6.77 5.76c.27.23.3.61.09.85M12 15v-5H7v5zm7-12h-1V1h-2v2H8V1H6v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8v-2H5V8h14v3.06l2 1.7V5c0-1.1-.9-2-2-2" },
+                { key: "kofi", icon: "M23.881 8.948c-.773-4.085-4.859-4.593-4.859-4.593H.723c-.604 0-.679.798-.679.798s-.082 7.324-.022 11.822c.164 2.424 2.586 2.672 2.586 2.672s8.267-.023 11.966-.049c2.438-.426 2.683-2.566 2.658-3.734c4.352.24 7.422-2.831 6.649-6.916m-11.062 3.511c-1.246 1.453-4.011 3.976-4.011 3.976s-.121.119-.31.023c-.076-.057-.108-.09-.108-.09c-.443-.441-3.368-3.049-4.034-3.954c-.709-.965-1.041-2.7-.091-3.71c.951-1.01 3.005-1.086 4.363.407c0 0 1.565-1.782 3.468-.963s1.832 3.011.723 4.311m6.173.478c-.928.116-1.682.028-1.682.028V7.284h1.77s1.971.551 1.971 2.638c0 1.913-.985 2.667-2.059 3.015" },
+                { key: "buy-me-a-coffee", icon: "m20.216 6.415l-.132-.666c-.119-.598-.388-1.163-1.001-1.379c-.197-.069-.42-.098-.57-.241c-.152-.143-.196-.366-.231-.572c-.065-.378-.125-.756-.192-1.133c-.057-.325-.102-.69-.25-.987c-.195-.4-.597-.634-.996-.788a6 6 0 0 0-.626-.194c-1-.263-2.05-.36-3.077-.416a26 26 0 0 0-3.7.062c-.915.083-1.88.184-2.75.5c-.318.116-.646.256-.888.501c-.297.302-.393.77-.177 1.146c.154.267.415.456.692.58c.36.162.737.284 1.123.366c1.075.238 2.189.331 3.287.37q1.829.074 3.65-.118q.449-.05.896-.119c.352-.054.578-.513.474-.834c-.124-.383-.457-.531-.834-.473c-.466.074-.96.108-1.382.146q-1.767.12-3.536.006a22 22 0 0 1-1.157-.107c-.086-.01-.18-.025-.258-.036q-.364-.055-.724-.13c-.111-.027-.111-.185 0-.212h.005q.416-.09.838-.147h.002c.131-.009.263-.032.394-.048a25 25 0 0 1 3.426-.12q1.011.029 2.017.144l.228.031q.4.06.798.145c.392.085.895.113 1.07.542c.055.137.08.288.111.431l.319 1.484a.237.237 0 0 1-.199.284h-.003l-.112.015a37 37 0 0 1-4.743.295a37 37 0 0 1-4.699-.304c-.14-.017-.293-.042-.417-.06c-.326-.048-.649-.108-.973-.161c-.393-.065-.768-.032-1.123.161c-.29.16-.527.404-.675.701c-.154.316-.199.66-.267 1c-.069.34-.176.707-.135 1.056c.087.753.613 1.365 1.37 1.502a39.7 39.7 0 0 0 11.343.376a.483.483 0 0 1 .535.53l-.071.697l-1.018 9.907c-.041.41-.047.832-.125 1.237c-.122.637-.553 1.028-1.182 1.171q-.868.197-1.756.205c-.656.004-1.31-.025-1.966-.022c-.699.004-1.556-.06-2.095-.58c-.475-.458-.54-1.174-.605-1.793l-.731-7.013l-.322-3.094c-.037-.351-.286-.695-.678-.678c-.336.015-.718.3-.678.679l.228 2.185l.949 9.112c.147 1.344 1.174 2.068 2.446 2.272c.742.12 1.503.144 2.257.156c.966.016 1.942.053 2.892-.122c1.408-.258 2.465-1.198 2.616-2.657l1.024-9.995l.215-2.087a.48.48 0 0 1 .39-.426c.402-.078.787-.212 1.074-.518c.455-.488.546-1.124.385-1.766zm-1.478.772c-.145.137-.363.201-.578.233c-2.416.359-4.866.54-7.308.46c-1.748-.06-3.477-.254-5.207-.498c-.17-.024-.353-.055-.47-.18c-.22-.236-.111-.71-.054-.995c.052-.26.152-.609.463-.646c.484-.057 1.046.148 1.526.22q.865.132 1.737.212c2.48.226 5.002.19 7.472-.14q.675-.09 1.345-.21c.399-.072.84-.206 1.08.206c.166.281.188.657.162.974a.54.54 0 0 1-.169.364zm-6.159 3.9c-.862.37-1.84.788-3.109.788a6 6 0 0 1-1.569-.217l.877 9.004c.065.78.717 1.38 1.5 1.38c0 0 1.243.065 1.658.065c.447 0 1.786-.065 1.786-.065c.783 0 1.434-.6 1.499-1.38l.94-9.95a4 4 0 0 0-1.322-.238c-.826 0-1.491.284-2.26.613" },
+                { key: "this-github-repo", icon: "M6 2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2m6.75 11.5c2.75 0 3.49-2.03 3.68-3.1c.91-.29 1.57-1.14 1.57-2.15C18 7 17 6 15.75 6S13.5 7 13.5 8.25c0 .94.57 1.75 1.39 2.08C14.67 11 14 12 12 12c-1.38 0-2.34.35-3 .84V8.87c.87-.31 1.5-1.14 1.5-2.12c0-1.25-1-2.25-2.25-2.25S6 5.5 6 6.75c0 .98.63 1.81 1.5 2.12v6.26c-.87.31-1.5 1.14-1.5 2.12c0 1.25 1 2.25 2.25 2.25s2.25-1 2.25-2.25c0-.93-.56-1.75-1.37-2.07c.28-.68 1.1-1.68 3.62-1.68m-4.5 3a.75.75 0 0 1 .75.75a.75.75 0 0 1-.75.75a.75.75 0 0 1-.75-.75a.75.75 0 0 1 .75-.75m0-10.5a.75.75 0 0 1 .75.75a.75.75 0 0 1-.75.75a.75.75 0 0 1-.75-.75a.75.75 0 0 1 .75-.75m7.5 1.5a.75.75 0 0 1 .75.75a.75.75 0 0 1-.75.75a.75.75 0 0 1-.75-.75a.75.75 0 0 1 .75-.75" }
+            ];
+            container.innerHTML = socialsData.map(item => `
                 <div class="flex flex-col md:flex-row md:items-center gap-2">
-                    <label class="nb-label w-32 shrink-0">${key}</label>
-                    <input type="text" data-path="socials.${key}" class="nb-input flex-1" value="${config.socials[key]}" oninput="updateConfig(this)">
+                    <div class="w-40 shrink-0 flex items-center gap-2">
+                        <svg class="w-6 h-6 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="${item.icon}"/></svg>
+                        <label class="nb-label mb-0">${item.key}</label>
+                    </div>
+                    <input type="text" data-path="socials.${item.key}" class="nb-input flex-1" value="${config.socials[item.key]}" oninput="updateConfig(this)">
                 </div>
             `).join('');
         }
 
         // === Redirects Logic ===
         function renderRedirects() {
-             const container = document.getElementById('redirectsContainer');
-             const redirects = config.redirects;
-             const keys = Object.keys(redirects);
-             
-             if(keys.length === 0) {
-                 container.innerHTML = '<div class="text-sm italic opacity-50">No redirects configured.</div>';
-                 return;
-             }
+            const container = document.getElementById('redirectsContainer');
+            const redirects = config.redirects;
+            const keys = Object.keys(redirects);
 
-             container.innerHTML = keys.map((oldPath, index) => `
+            if (keys.length === 0) {
+                container.innerHTML = '<div class="text-sm italic opacity-50">No redirects configured.</div>';
+                return;
+            }
+
+            container.innerHTML = keys.map((oldPath, index) => `
                 <div class="flex gap-2 items-center">
                     <input type="text" class="nb-input w-1/2" value="${oldPath}" placeholder="/old" onchange="updateRedirectKey('${oldPath}', this.value)">
                     <span class="font-bold">→</span>
@@ -1162,7 +1695,7 @@
             config.redirects[key] = newVal;
             renderPreview();
         }
-        
+
         // === Bib Format Logic ===
         function updateBibFormat(select) {
             const bib = config["auto-extracted-sections"].citations["extract-and-process-bibtex-citations"]["bibliography-format"];
@@ -1179,7 +1712,7 @@
         function toggleSection(id) {
             const el = document.getElementById(id);
             document.querySelectorAll('.nb-section-content').forEach(d => {
-                if(d.id !== id) d.style.display = 'none';
+                if (d.id !== id) d.style.display = 'none';
             });
             el.style.display = el.style.display === 'block' ? 'none' : 'block';
         }
@@ -1190,7 +1723,7 @@
             set(config, path, value);
             renderPreview();
         }
-        
+
         function updateFootnoteSource(input) {
             const sources = config["auto-extracted-sections"].footnotes["in-page-footnotes-settings"].source;
             Object.keys(sources).forEach(k => sources[k] = false);
@@ -1238,7 +1771,7 @@
 
             const bgVal = getRgb(colors.bg[previewMode]);
             const textVal = getRgb(colors.text[previewMode]);
-            
+
             container.style.backgroundColor = bgVal;
             container.style.color = textVal;
 
@@ -1253,7 +1786,7 @@
 
             h1.style.color = getRgb(colors.accent[previewMode]);
             link.style.color = getRgb(colors.link[previewMode]);
-            
+
             quote.style.borderColor = getRgb(colors['accent-2'][previewMode]);
             quote.style.color = getRgb(colors.quote[previewMode]);
 
@@ -1261,6 +1794,58 @@
                 code.style.fontFamily = `"${monoFamily}", monospace`;
             }
             code.style.backgroundColor = previewMode === 'light' ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.1)';
+
+            // --- Cover Overlay Rendering ---
+            const overlayContainer = document.getElementById('preview-cover-overlay');
+            if (overlayContainer) {
+                const enabled = config.theme['cover-overlay'];
+                const title = "The Future of Web Development";
+                const date = "Oct 24, 2025";
+                const tags = ["TECH", "WEB"];
+                const bgUrl = "https://images.unsplash.com/photo-1498050108023-c5249f4df085?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80";
+
+                // Colors for standard view (using theme colors)
+                const accentColor = getRgb(colors.accent[previewMode]);
+                const quoteColor = getRgb(colors.quote[previewMode]);
+                const borderColor = getRgb(colors['accent-2'][previewMode]);
+
+                let html = '';
+
+                // Common Content
+                // Note: For overlay mode, we might want fixed white text. For standard, theme text.
+                // We'll generate slightly different HTML for each to handle styles.
+
+                if (enabled) {
+                    html = `
+                        <div class="cover-overlay-container h-64 mb-4">
+                            <div class="cover-overlay-bg" style="background-image: url('${bgUrl}')"></div>
+                            <div class="cover-overlay-tint" style="background-color: ${previewMode === 'light' ? 'rgba(255,255,255,0.85)' : 'rgba(0,0,0,0.7)'}"></div>
+                            <div class="cover-overlay-content h-full flex flex-col justify-end">
+                                <h1 class="text-3xl font-bold mb-2 leading-tight" style="color: ${previewMode === 'light' ? 'black' : 'white'}">${title}</h1>
+                                <div class="flex items-center gap-3 text-sm font-mono mb-2" style="color: ${previewMode === 'light' ? '#444' : '#ccc'}">
+                                    <span class="font-bold">${date}</span>
+                                </div>
+                                <div class="flex gap-2">
+                                    ${tags.map(t => `<span class="px-2 py-0.5 border border-black rounded text-xs font-bold bg-white text-black">${t}</span>`).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    html = `
+                        <div class="mb-6 p-4 border-b-2" style="border-color: ${borderColor}">
+                            <h1 class="text-3xl font-bold mb-2 leading-tight" style="color: ${accentColor}">${title}</h1>
+                            <div class="flex items-center gap-3 text-sm font-mono mb-2" style="color: ${quoteColor}">
+                                <span class="font-bold">${date}</span>
+                            </div>
+                            <div class="flex gap-2">
+                                ${tags.map(t => `<span class="px-2 py-0.5 border rounded text-xs font-bold" style="border-color: ${textVal}; color: ${textVal}">${t}</span>`).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+                overlayContainer.innerHTML = html;
+            }
         }
 
         // === Font Preview Logic ===
@@ -1271,10 +1856,10 @@
             const fontName = input.value.trim();
             if (!fontName) return;
             const label = document.getElementById(`label-${type}`);
-            
+
             // Check if it is a theme font or OG font to set fallback
             const isMono = type === 'mono' || type === 'og-footnote';
-            
+
             label.style.fontFamily = `"${fontName}", ${isMono ? 'monospace' : 'sans-serif'}`;
             renderThemePreview();
             if (fontDebounceTimers[type]) clearTimeout(fontDebounceTimers[type]);
@@ -1349,16 +1934,16 @@
 
         function renderOGPreview() {
             const canvas = document.getElementById('og-canvas');
-            if(!canvas) return;
-            
+            if (!canvas) return;
+
             const getRgb = (str) => {
-                if(!str) return 'rgb(255,255,255)';
+                if (!str) return 'rgb(255,255,255)';
                 const p = str.split(' ');
                 return `rgb(${p[0]}, ${p[1]}, ${p[2]})`;
             };
-            
+
             const getRgba = (str, alpha) => {
-                if(!str) return `rgba(255,255,255,${alpha})`;
+                if (!str) return `rgba(255,255,255,${alpha})`;
                 const p = str.split(' ');
                 return `rgba(${p[0]}, ${p[1]}, ${p[2]}, ${alpha})`;
             };
@@ -1391,11 +1976,11 @@
             const maskImageStyle = `linear-gradient(to bottom, ${getRgba(colors.bg_raw, 0.1)} 30%, ${getRgba(colors.bg_raw, 0.1)} 30%, ${getRgba(colors.bg_raw, 0.25)} 80%, ${getRgba(colors.bg_raw, 0.1)} 80%)`;
 
             canvas.style.backgroundColor = colors.bg;
-            canvas.innerHTML = ''; 
+            canvas.innerHTML = '';
 
             const wrapper = document.createElement('div');
             wrapper.className = "w-full h-full flex flex-col";
-            
+
             if (!hasImage) {
                 wrapper.style.backgroundImage = bgImagePattern;
                 wrapper.style.backgroundSize = "100px 100px";
@@ -1415,7 +2000,7 @@
                 imgBg.src = ogRandomData.image;
                 imgBg.className = "absolute top-0 left-0 w-full h-full object-cover";
                 imgBg.style.maskImage = maskImageStyle;
-                imgBg.style.webkitMaskImage = maskImageStyle; 
+                imgBg.style.webkitMaskImage = maskImageStyle;
                 wrapper.appendChild(imgBg);
 
                 // UPDATED: Added Excerpt logic and increased font sizes (+2px)
@@ -1446,7 +2031,7 @@
                         ${contentHtml}
                     </div>
                 `;
-            } 
+            }
             else if (columns == 2 && hasImage) {
                 const imgDiv = document.createElement('div');
                 imgDiv.className = "flex flex-1";
@@ -1457,7 +2042,7 @@
 
                 const textDiv = document.createElement('div');
                 textDiv.className = "flex flex-col flex-1 ml-4 pb-[44px]";
-                
+
                 // UPDATED: Increased font sizes (+2px)
                 const titleSize = includeExcerpt ? "16px" : "18px";
                 const titleFlex = includeExcerpt ? "0.5" : "1";
@@ -1490,7 +2075,7 @@
                 // UPDATED: Increased font sizes (+2px)
                 const titleSize = includeExcerpt ? "18px" : "20px";
                 const titleFlex = includeExcerpt ? "0.5" : "1";
-                
+
                 let contentHtml = `
                      <div class="flex items-center justify-center text-center w-full" style="flex: ${titleFlex}; font-size: ${titleSize}; font-weight: ${fonts.titleWgt}; line-height: 1.1; padding: 20px 30px; color: ${colors.accent}; font-family: '${fonts.title}'">
                         ${ogRandomData.title}
@@ -1498,7 +2083,7 @@
                 `;
 
                 if (includeExcerpt) {
-                     contentHtml += `
+                    contentHtml += `
                     <div class="flex-1 flex justify-center text-center w-full" style="font-size: 14px; font-weight: ${fonts.titleWgt}; line-height: 1.3; padding: 10px 30px; color: ${colors.text}; font-family: '${fonts.footnote}'">
                         ${ogRandomData.excerpt}
                     </div>`;
@@ -1523,6 +2108,71 @@
             canvas.appendChild(wrapper);
         }
 
+        // === Listing View Demo Logic ===
+        function renderListingViewDemo() {
+            const container = document.getElementById('listing-view-demo');
+            if (!container) return;
+
+            const mode = config['collections-and-listings']['listing-view'] || 'list';
+
+            let html = '';
+            if (mode === 'list') {
+                html = `
+                    <div class="text-xs font-bold uppercase mb-1 opacity-50">List View Preview</div>
+                    <div class="flex flex-col gap-2">
+                        <div class="border-2 border-black p-2 bg-white shadow-[2px_2px_0px_black] flex justify-between items-center">
+                            <div>
+                                <div class="font-bold text-sm">Understanding React Server Components</div>
+                                <div class="text-xs text-gray-500 font-mono mt-1">
+                                    <span class="bg-gray-200 px-1 rounded-sm text-[10px] text-black border border-black mr-2">TECH</span>
+                                    Oct 24, 2025
+                                </div>
+                            </div>
+                            <div class="text-xl">→</div>
+                        </div>
+                        <div class="border-2 border-black p-2 bg-white shadow-[2px_2px_0px_black] flex justify-between items-center">
+                            <div>
+                                <div class="font-bold text-sm">Why Rust is eating the world</div>
+                                <div class="text-xs text-gray-500 font-mono mt-1">
+                                    <span class="bg-gray-200 px-1 rounded-sm text-[10px] text-black border border-black mr-2">CODE</span>
+                                    Oct 22, 2025
+                                </div>
+                            </div>
+                            <div class="text-xl">→</div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                html = `
+                    <div class="text-xs font-bold uppercase mb-1 opacity-50">Gallery View Preview</div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="border-2 border-black bg-white shadow-[3px_3px_0px_black] flex flex-col h-full transition-transform hover:-translate-y-1 hover:shadow-[4px_4px_0px_black]">
+                            <div class="h-16 bg-gray-200 border-b-2 border-black flex items-center justify-center text-xs font-bold text-gray-400">FEATURED IMAGE</div>
+                            <div class="p-2 flex flex-col flex-1">
+                                <div class="font-bold text-xs leading-tight mb-1">Understanding React Server Components</div>
+                                <div class="mt-auto pt-2 text-[10px] text-gray-500 font-mono">
+                                    <span class="bg-gray-200 px-1 rounded-sm text-[10px] text-black border border-black mr-2">TECH</span>
+                                    <span>Oct 24</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="border-2 border-black bg-white shadow-[3px_3px_0px_black] flex flex-col h-full transition-transform hover:-translate-y-1 hover:shadow-[4px_4px_0px_black]">
+                            <div class="h-16 bg-gray-200 border-b-2 border-black flex items-center justify-center text-xs font-bold text-gray-400">FEATURED IMAGE</div>
+                            <div class="p-2 flex flex-col flex-1">
+                                <div class="font-bold text-xs leading-tight mb-1">Why Rust is eating the world</div>
+                                <div class="mt-auto pt-2 text-[10px] text-gray-500 font-mono">
+                                    <span class="bg-gray-200 px-1 rounded-sm text-[10px] text-black border border-black mr-2">CODE</span>
+                                    <span>Oct 22</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+        }
+
         // === PREVIEW RENDERER WITH REPLACEMENT ===
 
         function renderPreview() {
@@ -1530,7 +2180,7 @@
             const f = config["auto-extracted-sections"].footnotes["in-page-footnotes-settings"];
             const cite = config["auto-extracted-sections"].citations;
             const citeSet = cite["extract-and-process-bibtex-citations"];
-            
+
             // Handle Bibtex list specifically to include comment
             const bibUrls = citeSet['bibtex-file-url-list'];
             const bibString = bibUrls.length > 0 ? "\n\t\t\t\t\t" + bibUrls.map(u => `"${u}"`).join(',\n\t\t\t\t\t') : "";
@@ -1541,13 +2191,19 @@
                 '__SITE_AUTHOR__': config['site-info'].author,
                 '__SITE_DOMAIN__': config['site-info']['custom-domain'],
                 '__SITE_BASE_PATH__': config['site-info']['base-path'],
+                '__SITE_AUTHOR_URL__': config['site-info']['site-author-url'],
+                '__SITE_AUTHOR_PHOTO__': config['site-info']['site-author-photo'],
+                '__ENABLE_AUTHOR_PAGES__': config['site-info'].authors['enable-author-pages'],
+                '__ONLY_CUSTOM_AUTHORS__': config['site-info'].authors['only-when-custom-authors'],
+
                 '__HOME_SLUG__': config['collections-and-listings']['home-page-slug'],
                 '__RECENT_POSTS_BOOL__': config['collections-and-listings']['recent-posts-on-home-page'],
                 '__POSTS_PER_PAGE__': config['collections-and-listings']['number-of-posts-per-page'],
                 '__MENU_COLLECTION__': config['collections-and-listings']['menu-pages-collection'],
                 '__FULL_PREVIEW_ARRAY__': JSON.stringify(config['collections-and-listings']['full-preview-collections']), // Forces double quotes
                 '__HIDE_UNDERSCORE_BOOL__': config['collections-and-listings']['hide-underscore-slugs-in-lists'],
-                
+                '__LISTING_VIEW__': config['collections-and-listings']['listing-view'],
+
                 '__BG_LIGHT__': config.theme.colors.bg.light,
                 '__BG_DARK__': config.theme.colors.bg.dark,
                 '__TEXT_LIGHT__': config.theme.colors.text.light,
@@ -1560,10 +2216,11 @@
                 '__ACCENT2_DARK__': config.theme.colors['accent-2'].dark,
                 '__QUOTE_LIGHT__': config.theme.colors.quote.light,
                 '__QUOTE_DARK__': config.theme.colors.quote.dark,
-                
+
                 '__FONT_SANS__': config.theme['fontfamily-google-fonts']['sans-font-name'],
                 '__FONT_MONO__': config.theme['fontfamily-google-fonts']['mono-font-name'],
-                
+                '__COVER_OVERLAY__': config.theme['cover-overlay'],
+
                 '__SOCIAL_EMAIL__': config.socials.email,
                 '__SOCIAL_GITHUB__': config.socials.github,
                 '__SOCIAL_GSCHOLAR__': config.socials.googlescholar,
@@ -1596,7 +2253,7 @@
                 '__GISCUS_MAP__': c.giscus['data-mapping'],
                 '__GISCUS_POS__': c.giscus['data-input-position'],
                 '__GISCUS_REACT__': c.giscus['data-reactions-enabled'],
-                
+
                 // OG
                 '__OG_COLUMNS__': config['og-setup'].columns,
                 '__OG_EXCERPT__': config['og-setup'].excerpt,
@@ -1610,7 +2267,7 @@
                 '__BLK_FULLWIDTH__': config['block-rendering']['full-width-social-embeds'],
                 '__BLK_OPTIMIZE__': config['block-rendering']['optimize-images'],
                 '__BLK_PROCESS_MD__': config['block-rendering']['process-content-to-markdown'],
-                
+
                 // Extracted & Footnotes
                 '__FN_SLUG__': config['auto-extracted-sections'].footnotes['sitewide-footnotes-page-slug'],
                 '__FN_ENABLED__': f.enabled,
@@ -1622,7 +2279,7 @@
                 '__FN_PREFIX__': f['marker-prefix'],
                 '__FN_GEN_SECTION__': f['generate-footnotes-section'],
                 '__FN_SHOW_MARGIN__': f['show-in-margin-on-large-screens'],
-                
+
                 '__LINK_SITE__': config['auto-extracted-sections']['interlinked-content']['site-links-in-page'],
                 '__LINK_EXT__': config['auto-extracted-sections']['interlinked-content']['external-links-in-page'],
                 '__LINK_MEDIA__': config['auto-extracted-sections']['interlinked-content']['media-and-file-links-in-this-page'],
@@ -1652,7 +2309,7 @@
                 '__EXT_SRC_MDX__': config['external-content'].sources.mdx,
                 '__EXT_SRC_HTML__': config['external-content'].sources.html,
                 '__EXT_COMPONENTS__': config['external-content']['custom-components'],
-                
+
                 // Shortcodes
                 '__SC_HTML_RENDER__': config.shortcodes['html-render'],
                 '__SC_HTML_INJECT__': config.shortcodes['html-inject'],
@@ -1661,6 +2318,10 @@
                 '__SC_SHIKI__': config.shortcodes['shiki-transform'],
                 '__SC_MDX_INJECT__': config.shortcodes['mdx-inject'],
                 '__SC_TABLE__': config.shortcodes.table,
+                '__SC_AUTHOR_URL_START__': config.shortcodes['author-desc']['author-url'].start,
+                '__SC_AUTHOR_URL_END__': config.shortcodes['author-desc']['author-url'].end,
+                '__SC_AUTHOR_PHOTO_START__': config.shortcodes['author-desc']['author-photo-url'].start,
+                '__SC_AUTHOR_PHOTO_END__': config.shortcodes['author-desc']['author-photo-url'].end,
 
                 // Redirects
                 '__REDIRECTS_JSON__': JSON5.stringify(config.redirects, null, 4)
@@ -1670,8 +2331,9 @@
             for (const [key, value] of Object.entries(replacements)) {
                 output = output.replace(key, value);
             }
+            output += '\n';
             document.getElementById('jsonPreview').textContent = output;
-            
+
             // Trigger visual preview updates
             renderThemePreview();
             renderOGPreview();
@@ -1710,26 +2372,32 @@
         }
 
         window.onload = () => {
+            populateFormValues(); // Set default values first
             renderColorInputs();
             renderSocialInputs();
             renderRedirects();
+            renderTooltips(); // Add tooltips after rendering dynamic inputs
             renderPreview();
-            
+
             // Initialize Theme Fonts
             const sansInput = document.querySelector('input[data-path="theme.fontfamily-google-fonts.sans-font-name"]');
             const monoInput = document.querySelector('input[data-path="theme.fontfamily-google-fonts.mono-font-name"]');
-            if(sansInput) updateFontPreview(sansInput, 'sans');
-            if(monoInput) updateFontPreview(monoInput, 'mono');
+            if (sansInput) updateFontPreview(sansInput, 'sans');
+            if (monoInput) updateFontPreview(monoInput, 'mono');
 
             // Initialize OG Fonts
             const ogTitleInput = document.querySelector('input[data-path="og-setup.title-font-name"]');
             const ogFootnoteInput = document.querySelector('input[data-path="og-setup.footnote-font-name"]');
-            if(ogTitleInput) updateFontPreview(ogTitleInput, 'og-title');
-            if(ogFootnoteInput) updateFontPreview(ogFootnoteInput, 'og-footnote');
-            
+            if (ogTitleInput) updateFontPreview(ogTitleInput, 'og-title');
+            if (ogFootnoteInput) updateFontPreview(ogFootnoteInput, 'og-footnote');
+
             // Initial OG Render
             renderOGPreview();
+
+            // Initial Listing Demo
+            renderListingViewDemo();
         };
     </script>
 </body>
+
 </html>

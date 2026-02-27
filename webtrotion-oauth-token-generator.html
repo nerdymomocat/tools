@@ -137,10 +137,11 @@
 			<section id="resultCard" class="nb-box card hidden">
 				<div id="errorBox" class="warn hidden" style="margin-bottom: 1rem"></div>
 				<label for="accessToken" class="nb-label">NOTION_OAUTH_TOKEN_FOR_MARKDOWN_API</label>
-				<textarea id="accessToken" class="nb-input mono" rows="5" readonly></textarea>
+				<input id="accessToken" class="nb-input mono" type="password" readonly />
 				<div class="actions">
 					<button id="copyTokenBtn" class="nb-button">Copy token</button>
-					<button id="clearHashBtn" class="nb-button secondary">Clear token from URL</button>
+					<button id="toggleTokenVisibilityBtn" class="nb-button secondary">Show token</button>
+					<button id="clearHashBtn" class="nb-button secondary">Clear token</button>
 				</div>
 			</section>
 		</div>
@@ -154,6 +155,7 @@
 				const errorBox = document.getElementById("errorBox");
 				const accessTokenEl = document.getElementById("accessToken");
 				const copyTokenBtn = document.getElementById("copyTokenBtn");
+				const toggleTokenVisibilityBtn = document.getElementById("toggleTokenVisibilityBtn");
 				const clearHashBtn = document.getElementById("clearHashBtn");
 
 				function readCallbackParams() {
@@ -171,6 +173,8 @@
 				function renderResult() {
 					const params = readCallbackParams();
 					if (!params.accessToken && !params.error) return;
+					const cleanUrl = window.location.origin + window.location.pathname;
+					window.history.replaceState({}, document.title, cleanUrl);
 					resultCard.classList.remove("hidden");
 					accessTokenEl.value = params.accessToken || "";
 					if (params.error) {
@@ -200,13 +204,16 @@
 					alert("Copied.");
 				});
 
+				toggleTokenVisibilityBtn.addEventListener("click", function () {
+					const isHidden = accessTokenEl.type === "password";
+					accessTokenEl.type = isHidden ? "text" : "password";
+					toggleTokenVisibilityBtn.textContent = isHidden ? "Hide token" : "Show token";
+				});
+
 				clearHashBtn.addEventListener("click", function () {
-					const cleanUrl = window.location.origin + window.location.pathname;
-					window.history.replaceState({}, document.title, cleanUrl);
-					resultCard.classList.add("hidden");
-					errorBox.classList.add("hidden");
-					errorBox.textContent = "";
 					accessTokenEl.value = "";
+					accessTokenEl.type = "password";
+					toggleTokenVisibilityBtn.textContent = "Show token";
 				});
 
 				renderResult();

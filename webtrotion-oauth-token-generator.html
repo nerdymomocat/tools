@@ -71,6 +71,11 @@
 				box-shadow: var(--shadow-offset) var(--shadow-offset) 0px black;
 				text-transform: uppercase;
 				font-family: "Space Grotesk", sans-serif;
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				gap: 0.45rem;
+				min-height: 44px;
 			}
 
 			.nb-button:active {
@@ -88,16 +93,41 @@
 				color: white;
 			}
 
-			.nb-button .copy-icon {
-				display: none;
-				width: 16px;
-				height: 16px;
-				vertical-align: -3px;
-				margin-right: 6px;
+			.nb-button.stable {
+				min-width: 160px;
 			}
 
-			.nb-button.copied .copy-icon {
+			.nb-button.icon-only {
+				width: 44px;
+				min-width: 44px;
+				padding: 0.5rem;
+			}
+
+			.icon-swap {
+				position: relative;
+				width: 18px;
+				height: 18px;
 				display: inline-block;
+				flex: 0 0 18px;
+			}
+
+			.icon-swap svg {
+				position: absolute;
+				inset: 0;
+				width: 18px;
+				height: 18px;
+			}
+
+			.icon-swap .icon-check {
+				display: none;
+			}
+
+			.nb-button.copied .icon-swap .icon-copy {
+				display: none;
+			}
+
+			.nb-button.copied .icon-swap .icon-check {
+				display: block;
 			}
 
 			.nb-label {
@@ -123,6 +153,13 @@
 				gap: 0.65rem;
 				flex-wrap: wrap;
 				margin-top: 1rem;
+			}
+
+			.label-row {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				gap: 0.6rem;
 			}
 
 			.hidden {
@@ -153,29 +190,50 @@
 
 			<section id="resultCard" class="nb-box card hidden">
 				<div id="errorBox" class="warn hidden" style="margin-bottom: 1rem"></div>
-				<label id="tokenLabel" for="accessToken" class="nb-label"
-					>NOTION_OAUTH_TOKEN_FOR_MARKDOWN_API</label
-				>
+				<div id="tokenLabelRow" class="label-row">
+					<label id="tokenLabel" for="accessToken" class="nb-label"
+						>NOTION_OAUTH_TOKEN_FOR_MARKDOWN_API</label
+					>
+					<button id="copyVarNameBtn" class="nb-button secondary icon-only" aria-label="Copy variable name">
+						<span class="icon-swap" aria-hidden="true">
+							<svg class="icon-copy" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+								<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+									<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/>
+									<path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+								</g>
+							</svg>
+							<svg class="icon-check" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+								<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+									<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/>
+									<path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+									<path d="m9 14l2 2l4-4"/>
+								</g>
+							</svg>
+						</span>
+					</button>
+				</div>
 				<input id="accessToken" class="nb-input mono" type="password" readonly />
 				<div id="tokenActions" class="actions">
-					<button id="copyTokenBtn" class="nb-button">
-						<svg
-							class="copy-icon"
-							xmlns="http://www.w3.org/2000/svg"
-							width="256"
-							height="256"
-							viewBox="0 0 256 256"
-							aria-hidden="true"
-						>
-							<path
-								fill="currentColor"
-								d="M225.86 102.82c-3.77-3.94-7.67-8-9.14-11.57c-1.36-3.27-1.44-8.69-1.52-13.94c-.15-9.76-.31-20.82-8-28.51s-18.75-7.85-28.51-8c-5.25-.08-10.67-.16-13.94-1.52c-3.56-1.47-7.63-5.37-11.57-9.14C146.28 23.51 138.44 16 128 16s-18.27 7.51-25.18 14.14c-3.94 3.77-8 7.67-11.57 9.14c-3.25 1.36-8.69 1.44-13.94 1.52c-9.76.15-20.82.31-28.51 8s-7.8 18.75-8 28.51c-.08 5.25-.16 10.67-1.52 13.94c-1.47 3.56-5.37 7.63-9.14 11.57C23.51 109.72 16 117.56 16 128s7.51 18.27 14.14 25.18c3.77 3.94 7.67 8 9.14 11.57c1.36 3.27 1.44 8.69 1.52 13.94c.15 9.76.31 20.82 8 28.51s18.75 7.85 28.51 8c5.25.08 10.67.16 13.94 1.52c3.56 1.47 7.63 5.37 11.57 9.14c6.9 6.63 14.74 14.14 25.18 14.14s18.27-7.51 25.18-14.14c3.94-3.77 8-7.67 11.57-9.14c3.27-1.36 8.69-1.44 13.94-1.52c9.76-.15 20.82-.31 28.51-8s7.85-18.75 8-28.51c.08-5.25.16-10.67 1.52-13.94c1.47-3.56 5.37-7.63 9.14-11.57c6.63-6.9 14.14-14.74 14.14-25.18s-7.51-18.27-14.14-25.18m-52.2 6.84l-56 56a8 8 0 0 1-11.32 0l-24-24a8 8 0 0 1 11.32-11.32L112 148.69l50.34-50.35a8 8 0 0 1 11.32 11.32"
-							/>
-						</svg>
-						<span id="copyTokenBtnText">Copy token</span>
+					<button id="copyTokenBtn" class="nb-button stable">
+						<span class="icon-swap" aria-hidden="true">
+							<svg class="icon-copy" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+								<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+									<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/>
+									<path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+								</g>
+							</svg>
+							<svg class="icon-check" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+								<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+									<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/>
+									<path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+									<path d="m9 14l2 2l4-4"/>
+								</g>
+							</svg>
+						</span>
+						<span>Copy token</span>
 					</button>
-					<button id="toggleTokenVisibilityBtn" class="nb-button secondary">Show token</button>
-					<button id="clearHashBtn" class="nb-button secondary">Clear token</button>
+					<button id="toggleTokenVisibilityBtn" class="nb-button secondary stable">Show token</button>
+					<button id="clearHashBtn" class="nb-button secondary stable">Clear token</button>
 				</div>
 			</section>
 		</div>
@@ -187,21 +245,28 @@
 				const startOauthBtn = document.getElementById("startOauthBtn");
 				const resultCard = document.getElementById("resultCard");
 				const errorBox = document.getElementById("errorBox");
+				const tokenLabelRow = document.getElementById("tokenLabelRow");
 				const tokenLabel = document.getElementById("tokenLabel");
 				const accessTokenEl = document.getElementById("accessToken");
 				const tokenActions = document.getElementById("tokenActions");
+				const copyVarNameBtn = document.getElementById("copyVarNameBtn");
 				const copyTokenBtn = document.getElementById("copyTokenBtn");
-				const copyTokenBtnText = document.getElementById("copyTokenBtnText");
 				const toggleTokenVisibilityBtn = document.getElementById("toggleTokenVisibilityBtn");
 				const clearHashBtn = document.getElementById("clearHashBtn");
 				let copyResetTimer = null;
+				let copyVarResetTimer = null;
+				const variableName = "NOTION_OAUTH_TOKEN_FOR_MARKDOWN_API";
 
 				function setCopyButtonDefault() {
-					copyTokenBtnText.textContent = "Copy token";
 					copyTokenBtn.classList.remove("copied");
 				}
 
+				function setCopyVarButtonDefault() {
+					copyVarNameBtn.classList.remove("copied");
+				}
+
 				function setTokenVisibility(visible) {
+					tokenLabelRow.classList.toggle("hidden", !visible);
 					tokenLabel.classList.toggle("hidden", !visible);
 					accessTokenEl.classList.toggle("hidden", !visible);
 					tokenActions.classList.toggle("hidden", !visible);
@@ -254,12 +319,24 @@
 						accessTokenEl.select();
 						document.execCommand("copy");
 					}
-					copyTokenBtnText.textContent = "Copied";
 					copyTokenBtn.classList.add("copied");
 					if (copyResetTimer) {
 						clearTimeout(copyResetTimer);
 					}
 					copyResetTimer = setTimeout(setCopyButtonDefault, 1600);
+				});
+
+				copyVarNameBtn.addEventListener("click", async function () {
+					try {
+						await navigator.clipboard.writeText(variableName);
+					} catch {
+						return;
+					}
+					copyVarNameBtn.classList.add("copied");
+					if (copyVarResetTimer) {
+						clearTimeout(copyVarResetTimer);
+					}
+					copyVarResetTimer = setTimeout(setCopyVarButtonDefault, 1600);
 				});
 
 				toggleTokenVisibilityBtn.addEventListener("click", function () {
@@ -273,6 +350,7 @@
 					accessTokenEl.type = "password";
 					toggleTokenVisibilityBtn.textContent = "Show token";
 					setCopyButtonDefault();
+					setCopyVarButtonDefault();
 					setTokenVisibility(false);
 					resultCard.classList.add("hidden");
 					errorBox.classList.add("hidden");

@@ -147,7 +147,7 @@
 				<p class="sub">Static helper page for public Notion integration tokens.</p>
 				<p class="muted">
 					After OAuth, copy the token and store it in GitHub Secret
-					<code>NOTION_MARKDOWN_API_SECRET</code>.
+					<code>NOTION_OAUTH_TOKEN_FOR_MARKDOWN_API</code>.
 				</p>
 			</section>
 
@@ -157,15 +157,10 @@
 					<label for="workerBaseUrl">OAuth Worker Base URL</label>
 					<input
 						id="workerBaseUrl"
-						placeholder="https://your-worker.your-subdomain.workers.dev"
+						placeholder="https://webtrotion-notion-oauth-token-generator.nerdymomocat.workers.dev"
 						autocomplete="off"
 					/>
-
-					<label for="returnTo">Return URL after OAuth</label>
-					<input id="returnTo" autocomplete="off" />
-					<p class="muted">
-						Default is this exact page URL so callback returns to the correct HTML tool page.
-					</p>
+					<p class="muted">Callback return URL is fixed in the Worker and always returns here.</p>
 
 					<div class="actions">
 						<button id="startOauthBtn">Start Notion OAuth</button>
@@ -200,7 +195,6 @@
 		<script>
 			(function () {
 				const workerBaseUrlEl = document.getElementById("workerBaseUrl");
-				const returnToEl = document.getElementById("returnTo");
 				const startOauthBtn = document.getElementById("startOauthBtn");
 				const saveConfigBtn = document.getElementById("saveConfigBtn");
 				const resultCard = document.getElementById("resultCard");
@@ -211,14 +205,12 @@
 				const copyTokenBtn = document.getElementById("copyTokenBtn");
 				const clearHashBtn = document.getElementById("clearHashBtn");
 
+				const fixedWorkerUrl =
+					"https://webtrotion-notion-oauth-token-generator.nerdymomocat.workers.dev";
 				const defaults = {
-					workerBaseUrl: localStorage.getItem("notionOauthWorkerBaseUrl") || "",
-					returnTo:
-						localStorage.getItem("notionOauthReturnTo") ||
-						window.location.origin + window.location.pathname,
+					workerBaseUrl: localStorage.getItem("notionOauthWorkerBaseUrl") || fixedWorkerUrl,
 				};
 				workerBaseUrlEl.value = defaults.workerBaseUrl;
-				returnToEl.value = defaults.returnTo;
 
 				function sanitizeWorkerBaseUrl(value) {
 					const parsed = new URL((value || "").trim());
@@ -257,7 +249,6 @@
 
 				saveConfigBtn.addEventListener("click", function () {
 					localStorage.setItem("notionOauthWorkerBaseUrl", workerBaseUrlEl.value.trim());
-					localStorage.setItem("notionOauthReturnTo", returnToEl.value.trim());
 					alert("Saved.");
 				});
 
@@ -273,16 +264,9 @@
 						alert("Worker URL is required.");
 						return;
 					}
-					let returnTo = returnToEl.value.trim();
-					if (!returnTo) {
-						returnTo = window.location.origin + window.location.pathname;
-						returnToEl.value = returnTo;
-					}
 					localStorage.setItem("notionOauthWorkerBaseUrl", workerBaseUrl);
-					localStorage.setItem("notionOauthReturnTo", returnTo);
 
 					const loginUrl = new URL("/auth/login", workerBaseUrl);
-					loginUrl.searchParams.set("from", returnTo);
 					window.location.href = loginUrl.toString();
 				});
 

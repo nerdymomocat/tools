@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Webtrotion OAuth Token Generator</title>
+		<style>
+			:root {
+				--bg: #f7f6f2;
+				--ink: #161616;
+				--pink: #ff5ca8;
+				--mint: #54f4c3;
+				--yellow: #ffe45e;
+				--blue: #78a8ff;
+				--border: 3px solid var(--ink);
+				font-family: "Space Grotesk", "Inter", system-ui, -apple-system, sans-serif;
+				color: var(--ink);
+				background: var(--bg);
+			}
+			* {
+				box-sizing: border-box;
+			}
+			body {
+				margin: 0;
+				padding: 20px 14px 60px;
+				background-image:
+					linear-gradient(transparent 31px, #0001 32px),
+					linear-gradient(90deg, transparent 31px, #0001 32px);
+				background-size: 32px 32px;
+			}
+			.wrap {
+				max-width: 900px;
+				margin: 0 auto;
+			}
+			.hero {
+				border: var(--border);
+				background: var(--yellow);
+				padding: 18px;
+				box-shadow: 8px 8px 0 var(--ink);
+			}
+			h1 {
+				margin: 0 0 6px;
+				font-size: clamp(1.4rem, 1.8vw + 1rem, 2.2rem);
+				letter-spacing: 0.02em;
+			}
+			.sub {
+				margin: 0;
+				font-weight: 600;
+			}
+			.grid {
+				display: grid;
+				gap: 16px;
+				margin-top: 16px;
+			}
+			.card {
+				border: var(--border);
+				padding: 14px;
+				background: #fff;
+				box-shadow: 6px 6px 0 var(--ink);
+			}
+			.card.settings {
+				background: var(--mint);
+			}
+			.card.result {
+				background: var(--blue);
+			}
+			label {
+				display: block;
+				font-weight: 800;
+				text-transform: uppercase;
+				font-size: 0.78rem;
+				margin: 12px 0 6px;
+				letter-spacing: 0.06em;
+			}
+			input,
+			textarea,
+			button {
+				font: inherit;
+				color: inherit;
+			}
+			input,
+			textarea {
+				width: 100%;
+				border: var(--border);
+				border-radius: 0;
+				background: #fff;
+				padding: 10px;
+				box-shadow: 4px 4px 0 var(--ink);
+			}
+			textarea {
+				min-height: 110px;
+				resize: vertical;
+			}
+			.actions {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 10px;
+				margin-top: 14px;
+			}
+			button {
+				border: var(--border);
+				background: var(--pink);
+				font-weight: 800;
+				padding: 10px 14px;
+				cursor: pointer;
+				box-shadow: 4px 4px 0 var(--ink);
+				text-transform: uppercase;
+				letter-spacing: 0.03em;
+			}
+			button:active {
+				transform: translate(2px, 2px);
+				box-shadow: 2px 2px 0 var(--ink);
+			}
+			code {
+				background: #fff;
+				border: var(--border);
+				padding: 1px 4px;
+				box-shadow: 2px 2px 0 var(--ink);
+				word-break: break-all;
+			}
+			.muted {
+				margin-top: 8px;
+				font-weight: 600;
+			}
+			.warn {
+				margin-top: 12px;
+				border: var(--border);
+				background: #fff;
+				padding: 10px;
+				box-shadow: 4px 4px 0 var(--ink);
+				font-weight: 700;
+			}
+			.hidden {
+				display: none;
+			}
+			@media (min-width: 760px) {
+				.grid {
+					grid-template-columns: 1fr 1fr;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<div class="wrap">
+			<section class="hero">
+				<h1>Webtrotion OAuth Token Generator</h1>
+				<p class="sub">Static helper page for public Notion integration tokens.</p>
+				<p class="muted">
+					After OAuth, copy the token and store it in GitHub Secret
+					<code>NOTION_MARKDOWN_API_SECRET</code>.
+				</p>
+			</section>
+
+			<section class="grid">
+				<div class="card settings">
+					<h2>1) Worker settings</h2>
+					<label for="workerBaseUrl">OAuth Worker Base URL</label>
+					<input
+						id="workerBaseUrl"
+						placeholder="https://your-worker.your-subdomain.workers.dev"
+						autocomplete="off"
+					/>
+
+					<label for="returnTo">Return URL after OAuth</label>
+					<input id="returnTo" autocomplete="off" />
+					<p class="muted">
+						Default is this exact page URL so callback returns to the correct HTML tool page.
+					</p>
+
+					<div class="actions">
+						<button id="startOauthBtn">Start Notion OAuth</button>
+						<button id="saveConfigBtn" type="button">Save config locally</button>
+					</div>
+				</div>
+
+				<div id="resultCard" class="card result hidden">
+					<h2>2) Copy token values</h2>
+					<div id="errorBox" class="warn hidden"></div>
+
+					<label for="accessToken">Access token</label>
+					<textarea id="accessToken" readonly></textarea>
+
+					<label for="botId">Bot ID</label>
+					<input id="botId" readonly />
+
+					<label for="workspaceName">Workspace</label>
+					<input id="workspaceName" readonly />
+
+					<div class="actions">
+						<button id="copyTokenBtn" type="button">Copy access token</button>
+						<button id="clearHashBtn" type="button">Clear token from URL</button>
+					</div>
+					<p class="warn">
+						Never commit this token. Store in GitHub Secrets only and rotate if leaked.
+					</p>
+				</div>
+			</section>
+		</div>
+
+		<script>
+			(function () {
+				const workerBaseUrlEl = document.getElementById("workerBaseUrl");
+				const returnToEl = document.getElementById("returnTo");
+				const startOauthBtn = document.getElementById("startOauthBtn");
+				const saveConfigBtn = document.getElementById("saveConfigBtn");
+				const resultCard = document.getElementById("resultCard");
+				const errorBox = document.getElementById("errorBox");
+				const accessTokenEl = document.getElementById("accessToken");
+				const botIdEl = document.getElementById("botId");
+				const workspaceNameEl = document.getElementById("workspaceName");
+				const copyTokenBtn = document.getElementById("copyTokenBtn");
+				const clearHashBtn = document.getElementById("clearHashBtn");
+
+				const defaults = {
+					workerBaseUrl: localStorage.getItem("notionOauthWorkerBaseUrl") || "",
+					returnTo:
+						localStorage.getItem("notionOauthReturnTo") ||
+						window.location.origin + window.location.pathname,
+				};
+				workerBaseUrlEl.value = defaults.workerBaseUrl;
+				returnToEl.value = defaults.returnTo;
+
+				function sanitizeWorkerBaseUrl(value) {
+					const parsed = new URL((value || "").trim());
+					return parsed.origin;
+				}
+
+				function readCallbackParams() {
+					const hash = window.location.hash.startsWith("#")
+						? window.location.hash.slice(1)
+						: window.location.hash;
+					const hashParams = new URLSearchParams(hash);
+					const queryParams = new URLSearchParams(window.location.search);
+					return {
+						accessToken: hashParams.get("accessToken") || queryParams.get("accessToken") || "",
+						botId: hashParams.get("botId") || queryParams.get("botId") || "",
+						workspaceName:
+							hashParams.get("workspaceName") || queryParams.get("workspaceName") || "",
+						error: hashParams.get("error") || queryParams.get("error") || "",
+					};
+				}
+
+				function renderResult() {
+					const params = readCallbackParams();
+					const hasResult =
+						!!params.accessToken || !!params.botId || !!params.workspaceName || !!params.error;
+					if (!hasResult) return;
+					resultCard.classList.remove("hidden");
+					accessTokenEl.value = params.accessToken;
+					botIdEl.value = params.botId;
+					workspaceNameEl.value = params.workspaceName;
+					if (params.error) {
+						errorBox.classList.remove("hidden");
+						errorBox.textContent = "OAuth returned an error: " + params.error;
+					}
+				}
+
+				saveConfigBtn.addEventListener("click", function () {
+					localStorage.setItem("notionOauthWorkerBaseUrl", workerBaseUrlEl.value.trim());
+					localStorage.setItem("notionOauthReturnTo", returnToEl.value.trim());
+					alert("Saved.");
+				});
+
+				startOauthBtn.addEventListener("click", function () {
+					let workerBaseUrl = "";
+					try {
+						workerBaseUrl = sanitizeWorkerBaseUrl(workerBaseUrlEl.value);
+					} catch {
+						alert("Enter a valid Worker URL.");
+						return;
+					}
+					if (!workerBaseUrl) {
+						alert("Worker URL is required.");
+						return;
+					}
+					let returnTo = returnToEl.value.trim();
+					if (!returnTo) {
+						returnTo = window.location.origin + window.location.pathname;
+						returnToEl.value = returnTo;
+					}
+					localStorage.setItem("notionOauthWorkerBaseUrl", workerBaseUrl);
+					localStorage.setItem("notionOauthReturnTo", returnTo);
+
+					const loginUrl = new URL("/auth/login", workerBaseUrl);
+					loginUrl.searchParams.set("from", returnTo);
+					window.location.href = loginUrl.toString();
+				});
+
+				copyTokenBtn.addEventListener("click", async function () {
+					const token = accessTokenEl.value.trim();
+					if (!token) {
+						alert("No access token found.");
+						return;
+					}
+					try {
+						await navigator.clipboard.writeText(token);
+					} catch {
+						accessTokenEl.focus();
+						accessTokenEl.select();
+						document.execCommand("copy");
+					}
+					alert("Copied.");
+				});
+
+				clearHashBtn.addEventListener("click", function () {
+					const cleanUrl = window.location.origin + window.location.pathname;
+					window.history.replaceState({}, document.title, cleanUrl);
+					resultCard.classList.add("hidden");
+					errorBox.classList.add("hidden");
+					errorBox.textContent = "";
+					accessTokenEl.value = "";
+					botIdEl.value = "";
+					workspaceNameEl.value = "";
+				});
+
+				renderResult();
+			})();
+		</script>
+	</body>
+</html>

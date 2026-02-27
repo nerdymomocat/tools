@@ -1,364 +1,372 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Webtrotion OAuth Token Generator</title>
-		<link
-			href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap"
-			rel="stylesheet"
-		/>
-		<style>
-			:root {
-				--bg-light: 246, 247, 249;
-				--text-light: 26, 28, 30;
-				--accent-light: 180, 95, 55;
-				--border-width: 3px;
-				--shadow-offset: 4px;
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Webtrotion OAuth Token Generator</title>
+	<link
+		href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap"
+		rel="stylesheet" />
+	<style>
+		:root {
+			--bg-light: 246, 247, 249;
+			--text-light: 26, 28, 30;
+			--accent-light: 180, 95, 55;
+			--border-width: 3px;
+			--shadow-offset: 4px;
+		}
+
+		body {
+			background-color: rgb(var(--bg-light));
+			color: rgb(var(--text-light));
+			font-family: "Space Grotesk", sans-serif;
+			margin: 0;
+			padding: 24px 14px 60px;
+		}
+
+		.mono {
+			font-family: "JetBrains Mono", monospace;
+		}
+
+		.wrap {
+			max-width: 860px;
+			margin: 0 auto;
+		}
+
+		.nb-box {
+			background: white;
+			border: var(--border-width) solid black;
+			box-shadow: var(--shadow-offset) var(--shadow-offset) 0px black;
+			transition: all 0.1s ease-in-out;
+		}
+
+		.nb-box:hover {
+			transform: translate(-1px, -1px);
+			box-shadow: calc(var(--shadow-offset) + 2px) calc(var(--shadow-offset) + 2px) 0px black;
+		}
+
+		.nb-input {
+			border: var(--border-width) solid black;
+			padding: 0.6rem;
+			width: 100%;
+			font-family: "JetBrains Mono", monospace;
+			outline: none;
+			background: #fff;
+			box-sizing: border-box;
+		}
+
+		.nb-input:focus {
+			background-color: #f0f0f0;
+			box-shadow: 2px 2px 0px black;
+		}
+
+		.nb-button {
+			background-color: rgb(var(--accent-light));
+			color: white;
+			border: var(--border-width) solid black;
+			padding: 0.6rem 1.3rem;
+			font-weight: bold;
+			cursor: pointer;
+			box-shadow: var(--shadow-offset) var(--shadow-offset) 0px black;
+			text-transform: uppercase;
+			font-family: "Space Grotesk", sans-serif;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			gap: 0.45rem;
+			min-height: 44px;
+		}
+
+		.nb-button:active {
+			transform: translate(var(--shadow-offset), var(--shadow-offset));
+			box-shadow: 0 0 0 black;
+		}
+
+		.nb-button.secondary {
+			background-color: white;
+			color: black;
+		}
+
+		.nb-button.copied {
+			background-color: #1f6f43;
+			color: white;
+		}
+
+		.nb-button.stable {
+			min-width: 160px;
+		}
+
+		.nb-button.icon-only {
+			width: 44px;
+			min-width: 44px;
+			padding: 0.5rem;
+		}
+
+		.icon-swap {
+			position: relative;
+			width: 18px;
+			height: 18px;
+			display: inline-block;
+			flex: 0 0 18px;
+		}
+
+		.icon-swap svg {
+			position: absolute;
+			inset: 0;
+			width: 18px;
+			height: 18px;
+		}
+
+		.icon-swap .icon-check {
+			display: none;
+		}
+
+		.nb-button.copied .icon-swap .icon-copy {
+			display: none;
+		}
+
+		.nb-button.copied .icon-swap .icon-check {
+			display: block;
+		}
+
+		.nb-label {
+			font-weight: 700;
+			margin-bottom: 0.25rem;
+			display: block;
+			font-size: 0.9rem;
+			text-transform: uppercase;
+		}
+
+		.header {
+			padding: 1.1rem;
+			margin-bottom: 1rem;
+		}
+
+		.card {
+			padding: 1.2rem;
+			margin-bottom: 1rem;
+		}
+
+		.actions {
+			display: flex;
+			gap: 0.65rem;
+			flex-wrap: wrap;
+			margin-top: 1rem;
+		}
+
+		.label-row {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 0.6rem;
+		}
+
+		.hidden {
+			display: none;
+		}
+
+		.warn {
+			background: #fff4f4;
+			border: var(--border-width) solid black;
+			box-shadow: var(--shadow-offset) var(--shadow-offset) 0px black;
+			padding: 0.7rem;
+			font-weight: 700;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="wrap">
+		<section class="nb-box header">
+			<h1 style="margin: 0 0 0.5rem">Webtrotion OAuth Token Generator</h1>
+			<p style="margin: 0 0 0.5rem">
+				This gets your public integration token for markdown API usage.
+			</p>
+		</section>
+
+		<section class="nb-box card">
+			<button id="startOauthBtn" class="nb-button">Start Notion OAuth</button>
+		</section>
+
+		<section id="resultCard" class="nb-box card hidden">
+			<div id="errorBox" class="warn hidden" style="margin-bottom: 1rem"></div>
+			<div id="tokenLabelRow" class="label-row">
+				<label id="tokenLabel" for="accessToken" class="nb-label">NOTION_OAUTH_TOKEN_FOR_MARKDOWN_API</label>
+				<button id="copyVarNameBtn" class="nb-button secondary icon-only" aria-label="Copy variable name">
+					<span class="icon-swap" aria-hidden="true">
+						<svg class="icon-copy" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+							viewBox="0 0 24 24">
+							<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+								stroke-width="2">
+								<rect width="8" height="4" x="8" y="2" rx="1" ry="1" />
+								<path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+							</g>
+						</svg>
+						<svg class="icon-check" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+							viewBox="0 0 24 24">
+							<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+								stroke-width="2">
+								<rect width="8" height="4" x="8" y="2" rx="1" ry="1" />
+								<path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+								<path d="m9 14l2 2l4-4" />
+							</g>
+						</svg>
+					</span>
+				</button>
+			</div>
+			<input id="accessToken" class="nb-input mono" type="password" readonly />
+			<div id="tokenActions" class="actions">
+				<button id="copyTokenBtn" class="nb-button stable">
+					<span class="icon-swap" aria-hidden="true">
+						<svg class="icon-copy" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+							viewBox="0 0 24 24">
+							<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+								stroke-width="2">
+								<rect width="8" height="4" x="8" y="2" rx="1" ry="1" />
+								<path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+							</g>
+						</svg>
+						<svg class="icon-check" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+							viewBox="0 0 24 24">
+							<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+								stroke-width="2">
+								<rect width="8" height="4" x="8" y="2" rx="1" ry="1" />
+								<path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+								<path d="m9 14l2 2l4-4" />
+							</g>
+						</svg>
+					</span>
+					<span>Copy token</span>
+				</button>
+				<button id="toggleTokenVisibilityBtn" class="nb-button secondary stable">Show token</button>
+				<button id="clearHashBtn" class="nb-button secondary stable">Clear token</button>
+			</div>
+		</section>
+	</div>
+
+	<script>
+		(function () {
+			const fixedWorkerUrl =
+				"https://webtrotion-notion-oauth-token-generator.nerdymomocat.workers.dev";
+			const startOauthBtn = document.getElementById("startOauthBtn");
+			const resultCard = document.getElementById("resultCard");
+			const errorBox = document.getElementById("errorBox");
+			const tokenLabelRow = document.getElementById("tokenLabelRow");
+			const tokenLabel = document.getElementById("tokenLabel");
+			const accessTokenEl = document.getElementById("accessToken");
+			const tokenActions = document.getElementById("tokenActions");
+			const copyVarNameBtn = document.getElementById("copyVarNameBtn");
+			const copyTokenBtn = document.getElementById("copyTokenBtn");
+			const toggleTokenVisibilityBtn = document.getElementById("toggleTokenVisibilityBtn");
+			const clearHashBtn = document.getElementById("clearHashBtn");
+			let copyResetTimer = null;
+			let copyVarResetTimer = null;
+			const variableName = "NOTION_OAUTH_TOKEN_FOR_MARKDOWN_API";
+
+			function setCopyButtonDefault() {
+				copyTokenBtn.classList.remove("copied");
 			}
 
-			body {
-				background-color: rgb(var(--bg-light));
-				color: rgb(var(--text-light));
-				font-family: "Space Grotesk", sans-serif;
-				margin: 0;
-				padding: 24px 14px 60px;
+			function setCopyVarButtonDefault() {
+				copyVarNameBtn.classList.remove("copied");
 			}
 
-			.mono {
-				font-family: "JetBrains Mono", monospace;
+			function setTokenVisibility(visible) {
+				tokenLabelRow.classList.toggle("hidden", !visible);
+				tokenLabel.classList.toggle("hidden", !visible);
+				accessTokenEl.classList.toggle("hidden", !visible);
+				tokenActions.classList.toggle("hidden", !visible);
 			}
 
-			.wrap {
-				max-width: 860px;
-				margin: 0 auto;
+			function readCallbackParams() {
+				const hash = window.location.hash.startsWith("#")
+					? window.location.hash.slice(1)
+					: window.location.hash;
+				const hashParams = new URLSearchParams(hash);
+				const queryParams = new URLSearchParams(window.location.search);
+				return {
+					accessToken: hashParams.get("accessToken") || queryParams.get("accessToken") || "",
+					error: hashParams.get("error") || queryParams.get("error") || "",
+				};
 			}
 
-			.nb-box {
-				background: white;
-				border: var(--border-width) solid black;
-				box-shadow: var(--shadow-offset) var(--shadow-offset) 0px black;
-				transition: all 0.1s ease-in-out;
-			}
-
-			.nb-box:hover {
-				transform: translate(-1px, -1px);
-				box-shadow: calc(var(--shadow-offset) + 2px) calc(var(--shadow-offset) + 2px) 0px black;
-			}
-
-			.nb-input {
-				border: var(--border-width) solid black;
-				padding: 0.6rem;
-				width: 100%;
-				font-family: "JetBrains Mono", monospace;
-				outline: none;
-				background: #fff;
-				box-sizing: border-box;
-			}
-
-			.nb-input:focus {
-				background-color: #f0f0f0;
-				box-shadow: 2px 2px 0px black;
-			}
-
-			.nb-button {
-				background-color: rgb(var(--accent-light));
-				color: white;
-				border: var(--border-width) solid black;
-				padding: 0.6rem 1.3rem;
-				font-weight: bold;
-				cursor: pointer;
-				box-shadow: var(--shadow-offset) var(--shadow-offset) 0px black;
-				text-transform: uppercase;
-				font-family: "Space Grotesk", sans-serif;
-				display: inline-flex;
-				align-items: center;
-				justify-content: center;
-				gap: 0.45rem;
-				min-height: 44px;
-			}
-
-			.nb-button:active {
-				transform: translate(var(--shadow-offset), var(--shadow-offset));
-				box-shadow: 0 0 0 black;
-			}
-
-			.nb-button.secondary {
-				background-color: white;
-				color: black;
-			}
-
-			.nb-button.copied {
-				background-color: #1f6f43;
-				color: white;
-			}
-
-			.nb-button.stable {
-				min-width: 160px;
-			}
-
-			.nb-button.icon-only {
-				width: 44px;
-				min-width: 44px;
-				padding: 0.5rem;
-			}
-
-			.icon-swap {
-				position: relative;
-				width: 18px;
-				height: 18px;
-				display: inline-block;
-				flex: 0 0 18px;
-			}
-
-			.icon-swap svg {
-				position: absolute;
-				inset: 0;
-				width: 18px;
-				height: 18px;
-			}
-
-			.icon-swap .icon-check {
-				display: none;
-			}
-
-			.nb-button.copied .icon-swap .icon-copy {
-				display: none;
-			}
-
-			.nb-button.copied .icon-swap .icon-check {
-				display: block;
-			}
-
-			.nb-label {
-				font-weight: 700;
-				margin-bottom: 0.25rem;
-				display: block;
-				font-size: 0.9rem;
-				text-transform: uppercase;
-			}
-
-			.header {
-				padding: 1.1rem;
-				margin-bottom: 1rem;
-			}
-
-			.card {
-				padding: 1.2rem;
-				margin-bottom: 1rem;
-			}
-
-			.actions {
-				display: flex;
-				gap: 0.65rem;
-				flex-wrap: wrap;
-				margin-top: 1rem;
-			}
-
-			.label-row {
-				display: flex;
-				align-items: center;
-				justify-content: space-between;
-				gap: 0.6rem;
-			}
-
-			.hidden {
-				display: none;
-			}
-
-			.warn {
-				background: #fff4f4;
-				border: var(--border-width) solid black;
-				box-shadow: var(--shadow-offset) var(--shadow-offset) 0px black;
-				padding: 0.7rem;
-				font-weight: 700;
-			}
-		</style>
-	</head>
-	<body>
-		<div class="wrap">
-			<section class="nb-box header">
-				<h1 style="margin: 0 0 0.5rem">Webtrotion OAuth Token Generator</h1>
-				<p style="margin: 0 0 0.5rem">
-					This gets your public integration token for markdown API usage.
-				</p>
-			</section>
-
-			<section class="nb-box card">
-				<button id="startOauthBtn" class="nb-button">Start Notion OAuth</button>
-			</section>
-
-			<section id="resultCard" class="nb-box card hidden">
-				<div id="errorBox" class="warn hidden" style="margin-bottom: 1rem"></div>
-				<div id="tokenLabelRow" class="label-row">
-					<label id="tokenLabel" for="accessToken" class="nb-label"
-						>NOTION_OAUTH_TOKEN_FOR_MARKDOWN_API</label
-					>
-					<button id="copyVarNameBtn" class="nb-button secondary icon-only" aria-label="Copy variable name">
-						<span class="icon-swap" aria-hidden="true">
-							<svg class="icon-copy" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-								<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-									<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/>
-									<path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
-								</g>
-							</svg>
-							<svg class="icon-check" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-								<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-									<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/>
-									<path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
-									<path d="m9 14l2 2l4-4"/>
-								</g>
-							</svg>
-						</span>
-					</button>
-				</div>
-				<input id="accessToken" class="nb-input mono" type="password" readonly />
-				<div id="tokenActions" class="actions">
-					<button id="copyTokenBtn" class="nb-button stable">
-						<span class="icon-swap" aria-hidden="true">
-							<svg class="icon-copy" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-								<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-									<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/>
-									<path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
-								</g>
-							</svg>
-							<svg class="icon-check" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-								<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-									<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/>
-									<path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
-									<path d="m9 14l2 2l4-4"/>
-								</g>
-							</svg>
-						</span>
-						<span>Copy token</span>
-					</button>
-					<button id="toggleTokenVisibilityBtn" class="nb-button secondary stable">Show token</button>
-					<button id="clearHashBtn" class="nb-button secondary stable">Clear token</button>
-				</div>
-			</section>
-		</div>
-
-		<script>
-			(function () {
-				const fixedWorkerUrl =
-					"https://webtrotion-notion-oauth-token-generator.nerdymomocat.workers.dev";
-				const startOauthBtn = document.getElementById("startOauthBtn");
-				const resultCard = document.getElementById("resultCard");
-				const errorBox = document.getElementById("errorBox");
-				const tokenLabelRow = document.getElementById("tokenLabelRow");
-				const tokenLabel = document.getElementById("tokenLabel");
-				const accessTokenEl = document.getElementById("accessToken");
-				const tokenActions = document.getElementById("tokenActions");
-				const copyVarNameBtn = document.getElementById("copyVarNameBtn");
-				const copyTokenBtn = document.getElementById("copyTokenBtn");
-				const toggleTokenVisibilityBtn = document.getElementById("toggleTokenVisibilityBtn");
-				const clearHashBtn = document.getElementById("clearHashBtn");
-				let copyResetTimer = null;
-				let copyVarResetTimer = null;
-				const variableName = "NOTION_OAUTH_TOKEN_FOR_MARKDOWN_API";
-
-				function setCopyButtonDefault() {
-					copyTokenBtn.classList.remove("copied");
-				}
-
-				function setCopyVarButtonDefault() {
-					copyVarNameBtn.classList.remove("copied");
-				}
-
-				function setTokenVisibility(visible) {
-					tokenLabelRow.classList.toggle("hidden", !visible);
-					tokenLabel.classList.toggle("hidden", !visible);
-					accessTokenEl.classList.toggle("hidden", !visible);
-					tokenActions.classList.toggle("hidden", !visible);
-				}
-
-				function readCallbackParams() {
-					const hash = window.location.hash.startsWith("#")
-						? window.location.hash.slice(1)
-						: window.location.hash;
-					const hashParams = new URLSearchParams(hash);
-					const queryParams = new URLSearchParams(window.location.search);
-					return {
-						accessToken: hashParams.get("accessToken") || queryParams.get("accessToken") || "",
-						error: hashParams.get("error") || queryParams.get("error") || "",
-					};
-				}
-
-				function renderResult() {
-					const params = readCallbackParams();
-					if (!params.accessToken && !params.error) return;
-					const cleanUrl = window.location.origin + window.location.pathname;
-					window.history.replaceState({}, document.title, cleanUrl);
-					resultCard.classList.remove("hidden");
-					accessTokenEl.value = params.accessToken || "";
-					setTokenVisibility(!!params.accessToken);
-					setCopyButtonDefault();
-					if (params.error) {
-						errorBox.classList.remove("hidden");
-						errorBox.textContent = "OAuth returned an error: " + params.error;
-					} else {
-						errorBox.classList.add("hidden");
-						errorBox.textContent = "";
-					}
-				}
-
-				startOauthBtn.addEventListener("click", function () {
-					const loginUrl = new URL("/auth/login", fixedWorkerUrl);
-					window.location.href = loginUrl.toString();
-				});
-
-				copyTokenBtn.addEventListener("click", async function () {
-					const token = accessTokenEl.value.trim();
-					if (!token) {
-						return;
-					}
-					try {
-						await navigator.clipboard.writeText(token);
-					} catch {
-						accessTokenEl.focus();
-						accessTokenEl.select();
-						document.execCommand("copy");
-					}
-					copyTokenBtn.classList.add("copied");
-					if (copyResetTimer) {
-						clearTimeout(copyResetTimer);
-					}
-					copyResetTimer = setTimeout(setCopyButtonDefault, 1600);
-				});
-
-				copyVarNameBtn.addEventListener("click", async function () {
-					try {
-						await navigator.clipboard.writeText(variableName);
-					} catch {
-						return;
-					}
-					copyVarNameBtn.classList.add("copied");
-					if (copyVarResetTimer) {
-						clearTimeout(copyVarResetTimer);
-					}
-					copyVarResetTimer = setTimeout(setCopyVarButtonDefault, 1600);
-				});
-
-				toggleTokenVisibilityBtn.addEventListener("click", function () {
-					const isHidden = accessTokenEl.type === "password";
-					accessTokenEl.type = isHidden ? "text" : "password";
-					toggleTokenVisibilityBtn.textContent = isHidden ? "Hide token" : "Show token";
-				});
-
-				clearHashBtn.addEventListener("click", function () {
-					accessTokenEl.value = "";
-					accessTokenEl.type = "password";
-					toggleTokenVisibilityBtn.textContent = "Show token";
-					setCopyButtonDefault();
-					setCopyVarButtonDefault();
-					setTokenVisibility(false);
-					resultCard.classList.add("hidden");
+			function renderResult() {
+				const params = readCallbackParams();
+				if (!params.accessToken && !params.error) return;
+				const cleanUrl = window.location.origin + window.location.pathname;
+				window.history.replaceState({}, document.title, cleanUrl);
+				resultCard.classList.remove("hidden");
+				accessTokenEl.value = params.accessToken || "";
+				setTokenVisibility(!!params.accessToken);
+				setCopyButtonDefault();
+				if (params.error) {
+					errorBox.classList.remove("hidden");
+					errorBox.textContent = "OAuth returned an error: " + params.error;
+				} else {
 					errorBox.classList.add("hidden");
 					errorBox.textContent = "";
-				});
+				}
+			}
 
-				renderResult();
-			})();
-		</script>
-	</body>
+			startOauthBtn.addEventListener("click", function () {
+				const loginUrl = new URL("/auth/login", fixedWorkerUrl);
+				window.location.href = loginUrl.toString();
+			});
+
+			copyTokenBtn.addEventListener("click", async function () {
+				const token = accessTokenEl.value.trim();
+				if (!token) {
+					return;
+				}
+				try {
+					await navigator.clipboard.writeText(token);
+				} catch {
+					accessTokenEl.focus();
+					accessTokenEl.select();
+					document.execCommand("copy");
+				}
+				copyTokenBtn.classList.add("copied");
+				if (copyResetTimer) {
+					clearTimeout(copyResetTimer);
+				}
+				copyResetTimer = setTimeout(setCopyButtonDefault, 1600);
+			});
+
+			copyVarNameBtn.addEventListener("click", async function () {
+				try {
+					await navigator.clipboard.writeText(variableName);
+				} catch {
+					return;
+				}
+				copyVarNameBtn.classList.add("copied");
+				if (copyVarResetTimer) {
+					clearTimeout(copyVarResetTimer);
+				}
+				copyVarResetTimer = setTimeout(setCopyVarButtonDefault, 1600);
+			});
+
+			toggleTokenVisibilityBtn.addEventListener("click", function () {
+				const isHidden = accessTokenEl.type === "password";
+				accessTokenEl.type = isHidden ? "text" : "password";
+				toggleTokenVisibilityBtn.textContent = isHidden ? "Hide token" : "Show token";
+			});
+
+			clearHashBtn.addEventListener("click", function () {
+				accessTokenEl.value = "";
+				accessTokenEl.type = "password";
+				toggleTokenVisibilityBtn.textContent = "Show token";
+				setCopyButtonDefault();
+				setCopyVarButtonDefault();
+				setTokenVisibility(false);
+				resultCard.classList.add("hidden");
+				errorBox.classList.add("hidden");
+				errorBox.textContent = "";
+			});
+
+			renderResult();
+		})();
+	</script>
+</body>
+
 </html>
